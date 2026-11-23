@@ -71,7 +71,7 @@ export default function PaymentResult({ orderId }) {
     <View
       style={{
         minHeight: "100dvh",
-        backgroundColor: "#dceafb",
+        backgroundColor: "transparent",
         alignItems: "center",
         justifyContent: "center",
         padding: 20,
