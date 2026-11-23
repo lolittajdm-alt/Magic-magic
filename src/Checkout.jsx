@@ -796,8 +796,8 @@ export default function Checkout({ apiAvailable = true }) {
                   )}
                 </Text>
               </View>
-              <Text style={s.hint}>
-                Доставка оплачується окремо за тарифами перевізника.
+              <Text style={[s.hint, { textAlign: "right" }]}>
+                + доставка за тарифами перевізника
               </Text>
             </>
           )}
