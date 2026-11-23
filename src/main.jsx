@@ -403,12 +403,9 @@ function App() {
               </Pressable>
             </View>
           </View>
-          <Image
+          <View
             nativeID="hero-product-box"
-            source={{ uri: assetUrl("/assets/magnetic-game-box-refined.webp") }}
-            accessibilityLabel="Коробка гри Магнітний бій"
             pointerEvents="none"
-            resizeMode="contain"
             style={{
               position: mobile ? "relative" : "absolute",
               alignSelf: "flex-end",
@@ -420,7 +417,21 @@ function App() {
               maxWidth: 510,
               aspectRatio: 1,
             }}
-          />
+          >
+            <img
+              className="hero-box-shell"
+              src={assetUrl("/assets/magnetic-game-box-refined.webp")}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+            <img
+              className="hero-box-front"
+              src={assetUrl("/assets/magnetic-box-front-approved.webp")}
+              alt="Коробка гри Магнітний бій"
+              draggable={false}
+            />
+          </View>
           <div className="hero-magnets" aria-hidden="true">
             {[
               [8, 25, 24],

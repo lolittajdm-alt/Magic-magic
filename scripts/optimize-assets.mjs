@@ -34,6 +34,9 @@ await sharp("public/assets/hero-magnet-glossy.png")
   .resize({ width: 128, withoutEnlargement: true })
   .webp({ quality: 92, alphaQuality: 100, effort: 6 })
   .toFile("public/assets/hero-magnet-glossy.webp");
+await sharp("public/assets/magnetic-box-front-approved.png")
+  .webp({ lossless: true, effort: 6 })
+  .toFile("public/assets/magnetic-box-front-approved.webp");
 console.log(
   `Illustrations: ${(before / 1048576).toFixed(2)} MB → ${(after / 1048576).toFixed(2)} MB (${Math.round((1 - after / before) * 100)}% smaller)`,
 );
