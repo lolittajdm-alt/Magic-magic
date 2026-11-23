@@ -210,8 +210,8 @@ test("COD persists unpaid order and server-calculated fee, deduplicates retries 
   const result = results[0].data;
   assert.equal(result.status, "awaiting_payment_on_delivery");
   assert.equal(result.amount, 2000);
-  assert.equal(result.codFee, 2040);
-  assert.equal(result.totalDue, 4040);
+  assert.equal(result.codFee, 40);
+  assert.equal(result.totalDue, 2040);
   assert.match(result.orderNumber, /^MC-[A-F0-9]{12}$/);
   h.restart();
   assert.deepEqual((await h.call("cod", body)).data, result);

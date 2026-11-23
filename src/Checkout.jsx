@@ -670,9 +670,7 @@ export default function Checkout({ apiAvailable = true }) {
                 role="radio"
                 aria-checked={paymentMethod === method}
                 accessibilityLabel={
-                  method === "online"
-                    ? "Онлайн-оплата"
-                    : "При отриманні — 2% + 20 ₴"
+                  method === "online" ? "Онлайн-оплата" : "При отриманні — 2%"
                 }
                 disabled={paying}
                 onPress={() => {
@@ -744,9 +742,7 @@ export default function Checkout({ apiAvailable = true }) {
                       />
                     </View>
                   ) : (
-                    <Text style={s.hint}>
-                      Комісія за переказ коштів — 2% + 20 ₴
-                    </Text>
+                    <Text style={s.hint}>Комісія за переказ коштів — 2%</Text>
                   )}
                 </View>
               </Pressable>
@@ -778,14 +774,12 @@ export default function Checkout({ apiAvailable = true }) {
           {paymentMethod === "cod" && (
             <>
               <View style={s.summaryRow}>
-                <Text style={s.summaryLabel}>
-                  Комісія за переказ (2% + 20 ₴)
-                </Text>
+                <Text style={s.summaryLabel}>Комісія за переказ (2%)</Text>
                 <Text style={s.summaryValue}>
                   {formatPrice(
                     confirmed
                       ? confirmed.codFee / 100
-                      : UNIT_PRICE * quantity * 0.02 + 20,
+                      : UNIT_PRICE * quantity * 0.02,
                   )}
                 </Text>
               </View>
@@ -798,7 +792,7 @@ export default function Checkout({ apiAvailable = true }) {
                   {formatPrice(
                     confirmed
                       ? confirmed.totalDue / 100
-                      : UNIT_PRICE * quantity * 1.02 + 20,
+                      : UNIT_PRICE * quantity * 1.02,
                   )}
                 </Text>
               </View>

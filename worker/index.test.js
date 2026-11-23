@@ -175,7 +175,8 @@ test("COD persists one order, sends Telegram automatically, and rejects changed 
   const order = await response.json();
   await f.drain();
   assert.equal(order.amount, 2000);
-  assert.equal(order.totalDue, 4040);
+  assert.equal(order.codFee, 40);
+  assert.equal(order.totalDue, 2040);
   assert.equal((await submit(details)).status, 200);
   await f.drain();
   assert.equal((await submit({ ...details, quantity: 3 })).status, 409);
@@ -183,6 +184,14 @@ test("COD persists one order, sends Telegram automatically, and rejects changed 
   assert.equal(f.DB.db.prepare("SELECT count(*) AS n FROM orders").get().n, 1);
   assert.equal(f.calls.filter((c) => c.url.includes("telegram")).length, 1);
   assert.match(JSON.parse(f.calls[0].init.body).text, /ще не оплачено/);
+  assert.match(
+    JSON.parse(f.calls[0].init.body).text,
+    /Комісія переказу \(2%\): 0\.40 грн/,
+  );
+  assert.match(
+    JSON.parse(f.calls[0].init.body).text,
+    /Разом без доставки: 20\.40 грн/,
+  );
 });
 test("failed Telegram delivery remains in durable outbox and is retried", async () => {
   const f = await fixture();

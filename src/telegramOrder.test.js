@@ -16,7 +16,7 @@ test("personal Telegram draft preserves delivery, callback and unpaid totals", (
     10,
   );
   assert.match(text, /Сума товарів: 20\.00 грн/);
-  assert.match(text, /Разом без доставки: 40\.40 грн/);
+  assert.match(text, /Разом без доставки: 20\.40 грн/);
   assert.match(text, /ще не оплачено/);
   assert.match(text, /Отримувач: Ім’я Тест перевірка/);
   assert.match(text, /Зателефонувати для уточнення: так/);
