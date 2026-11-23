@@ -2,7 +2,14 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 25px;
-  background-color: #93cffa;
+  background-color: #82c5f6;
+  background-image:
+    url("./sky-clouds.svg"),
+    linear-gradient(180deg, #82c5f6 0%, #b5dffa 58%, #e7f5ff 100%);
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   scrollbar-width: none;
 }
 html::-webkit-scrollbar,
@@ -48,24 +55,16 @@ button,
 ::selection {
   background: #cce8a7;
 }
-body:before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    url("./sky-clouds.svg") center / cover no-repeat,
-    linear-gradient(180deg, #82c5f6 0%, #b5dffa 58%, #e7f5ff 100%);
-}
 html[data-modal-open="true"] {
   background-color: #707f7d;
 }
 @media (max-width: 700px) {
-  body:before {
+  html {
     background-size:
       100% auto,
       auto;
     background-repeat: repeat-y, no-repeat;
+    background-attachment: scroll;
   }
 }
 [data-checkout-field]:focus-within {

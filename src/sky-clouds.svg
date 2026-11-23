@@ -17,6 +17,8 @@
     <use href="#puff" transform="translate(1390 600) scale(1.15)"/>
     <use href="#puff" transform="translate(-55 840) scale(1.05)" opacity=".82"/>
     <use href="#puff" transform="translate(1195 920) scale(1.4)" opacity=".8"/>
+    <use href="#puff" transform="translate(1195 -180) scale(1.4)" opacity=".8"/>
     <use href="#puff" transform="translate(460 -100) scale(1.4)" opacity=".65"/>
+    <use href="#puff" transform="translate(460 1000) scale(1.4)" opacity=".65"/>
   </g>
 </svg>
