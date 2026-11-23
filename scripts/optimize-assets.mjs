@@ -7,6 +7,7 @@ const assets = [
   "hero-squirrel",
   "hero-magnetic-board",
   "magnetic-game-box-square",
+  "magnetic-game-box-refined",
   "reference",
   "rule-1-enhanced",
   "rule-2-enhanced",
@@ -29,6 +30,10 @@ await sharp("public/assets/magnetic-chess.jpg")
   .resize({ width: 240, withoutEnlargement: true })
   .webp({ quality: 85 })
   .toFile("public/assets/checkout-product.webp");
+await sharp("public/assets/hero-magnet-glossy.png")
+  .resize({ width: 128, withoutEnlargement: true })
+  .webp({ quality: 92, alphaQuality: 100, effort: 6 })
+  .toFile("public/assets/hero-magnet-glossy.webp");
 console.log(
   `Illustrations: ${(before / 1048576).toFixed(2)} MB → ${(after / 1048576).toFixed(2)} MB (${Math.round((1 - after / before) * 100)}% smaller)`,
 );

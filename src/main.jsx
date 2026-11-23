@@ -405,7 +405,7 @@ function App() {
           </View>
           <Image
             nativeID="hero-product-box"
-            source={{ uri: assetUrl("/assets/magnetic-game-box-square.webp") }}
+            source={{ uri: assetUrl("/assets/magnetic-game-box-refined.webp") }}
             accessibilityLabel="Коробка гри Магнітний бій"
             pointerEvents="none"
             resizeMode="contain"
@@ -441,7 +441,13 @@ function App() {
                   bottom: `${bottom}%`,
                   "--magnet-size": `${diameter}px`,
                 }}
-              />
+              >
+                <img
+                  src={assetUrl("/assets/hero-magnet-glossy.webp")}
+                  alt=""
+                  draggable={false}
+                />
+              </span>
             ))}
           </div>
           <View style={s.heroBottom} />
