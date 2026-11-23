@@ -225,16 +225,18 @@ function App() {
           },
         ]}
       >
-        <View
-          nativeID="home"
-          style={[s.hero, { minHeight: mobile ? 1100 : tablet ? 950 : 1000 }]}
-        >
+        <View nativeID="home" style={[s.hero, { minHeight: mobile ? 0 : 700 }]}>
           <Image
             source={{ uri: assetUrl("/assets/hero-meadow.webp") }}
             style={[
               s.heroImage,
               tablet && !mobile && { width: 1160, right: -40 },
-              mobile && { width: "210%", height: 740, top: 360, right: -110 },
+              mobile && {
+                width: "210%",
+                height: "calc(100% - 360px)",
+                top: 360,
+                right: -110,
+              },
             ]}
             resizeMode="cover"
           />
@@ -244,38 +246,10 @@ function App() {
               tablet &&
                 !mobile && {
                   backgroundImage:
-                    "linear-gradient(90deg,#fffefa 0%,#fffefae0 28%,#fffefa60 45%,transparent 62%)",
+                    "linear-gradient(90deg,#fffefa 0%,#fffefaef 40%,#fffefa80 55%,transparent 72%)",
                 },
               mobile && s.heroFadeMobile,
             ]}
-          />
-          <Image
-            source={{ uri: assetUrl("/assets/magnetic-game-box-square.webp") }}
-            accessibilityLabel="Коробка гри Магнітний бій"
-            pointerEvents="none"
-            resizeMode="contain"
-            style={{
-              position: "absolute",
-              right: mobile ? 8 : 12,
-              bottom: mobile ? 250 : 100,
-              width: mobile ? "82%" : "46%",
-              maxWidth: 510,
-              aspectRatio: 1,
-            }}
-          />
-          <Image
-            source={{ uri: assetUrl("/assets/hero-magnetic-board.webp") }}
-            accessibilityLabel="Ігрова дошка з магнітними кульками, нахилена до гравця"
-            pointerEvents="none"
-            resizeMode="contain"
-            style={{
-              position: "absolute",
-              right: mobile ? "14%" : "40%",
-              bottom: mobile ? 28 : 45,
-              width: mobile ? "82%" : "43%",
-              maxWidth: 480,
-              aspectRatio: 1,
-            }}
           />
           <Image
             source={{ uri: assetUrl("/assets/hero-bird.webp") }}
@@ -352,7 +326,7 @@ function App() {
                   fontSize: mobile
                     ? Math.min(28, (width * 0.94 - 50) / 10.5)
                     : tablet
-                      ? 34
+                      ? Math.min(34, (width * 0.94 * 0.54 - 76) / 10)
                       : 43,
                   lineHeight: mobile ? 45 : tablet ? 55 : 65,
                   marginTop: 27,
@@ -366,7 +340,10 @@ function App() {
               style={[
                 s.body,
                 {
-                  maxWidth: 380,
+                  maxWidth:
+                    tablet && !mobile
+                      ? Math.min(380, width * 0.94 * 0.54 - 88)
+                      : 380,
                   marginTop: 22,
                   fontSize: mobile ? 16 : 18,
                   lineHeight: 28,
@@ -426,6 +403,24 @@ function App() {
               </Pressable>
             </View>
           </View>
+          <Image
+            nativeID="hero-product-box"
+            source={{ uri: assetUrl("/assets/magnetic-game-box-square.webp") }}
+            accessibilityLabel="Коробка гри Магнітний бій"
+            pointerEvents="none"
+            resizeMode="contain"
+            style={{
+              position: mobile ? "relative" : "absolute",
+              alignSelf: "flex-end",
+              right: mobile ? 8 : 12,
+              top: mobile ? undefined : 100,
+              marginTop: mobile ? 20 : 0,
+              marginBottom: mobile ? 24 : 0,
+              width: mobile ? "82%" : "46%",
+              maxWidth: 510,
+              aspectRatio: 1,
+            }}
+          />
           <View style={s.heroBottom} />
         </View>
         <View
