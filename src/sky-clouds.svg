@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" fill="none">
+  <defs>
+    <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#fff" stop-opacity=".98"/>
+      <stop offset=".6" stop-color="#fff" stop-opacity=".87"/>
+      <stop offset="1" stop-color="#f5fbff" stop-opacity=".25"/>
+    </linearGradient>
+    <filter id="soft" x="-15%" y="-35%" width="130%" height="170%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <path id="puff" d="M0 106C-5 83 16 65 43 67C43 33 73 11 104 22C123-10 174-6 190 30C222 17 255 41 253 70C282 63 312 80 312 102C352 97 375 114 364 131C348 153 29 154 6 138C-7 130-9 117 0 106Z"/>
+  </defs>
+  <g fill="url(#cloud)" filter="url(#soft)">
+    <use href="#puff" transform="translate(-135 70) scale(1.2)"/>
+    <use href="#puff" transform="translate(1275 170) scale(1.35)"/>
+    <use href="#puff" transform="translate(-205 445) scale(1.55)" opacity=".88"/>
+    <use href="#puff" transform="translate(1390 600) scale(1.15)"/>
+    <use href="#puff" transform="translate(-55 840) scale(1.05)" opacity=".82"/>
+    <use href="#puff" transform="translate(1195 920) scale(1.4)" opacity=".8"/>
+    <use href="#puff" transform="translate(460 -100) scale(1.4)" opacity=".65"/>
+  </g>
+</svg>

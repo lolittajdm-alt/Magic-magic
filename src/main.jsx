@@ -1163,7 +1163,7 @@ const s = StyleSheet.create({
   page: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#dceafb",
+    backgroundColor: "transparent",
     minHeight: "100vh",
   },
   shell: {

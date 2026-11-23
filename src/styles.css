@@ -2,7 +2,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 25px;
-  background-color: #dceafb;
+  background-color: #93cffa;
   scrollbar-width: none;
 }
 html::-webkit-scrollbar,
@@ -19,6 +19,7 @@ body {
   box-sizing: border-box;
 }
 #root {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -53,11 +54,19 @@ body:before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 80% 0%, #b7dcff, transparent 55%),
-    radial-gradient(ellipse at 0% 65%, #eff6ff, transparent 55%);
+    url("./sky-clouds.svg") center / cover no-repeat,
+    linear-gradient(180deg, #82c5f6 0%, #b5dffa 58%, #e7f5ff 100%);
 }
 html[data-modal-open="true"] {
   background-color: #707f7d;
+}
+@media (max-width: 700px) {
+  body:before {
+    background-size:
+      100% auto,
+      auto;
+    background-repeat: repeat-y, no-repeat;
+  }
 }
 [data-checkout-field]:focus-within {
   border-color: #609b35 !important;
