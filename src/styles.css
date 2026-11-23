@@ -145,6 +145,16 @@ html[data-modal-open="true"] {
   padding: 4px 12px;
   border-bottom: 1px solid #edf0e6;
 }
+#checkout-toolbar-title {
+  display: none;
+}
+#keyboard-done {
+  display: none;
+  min-width: 64px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
 #checkout-scroll {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -180,6 +190,45 @@ html[data-modal-open="true"] {
   }
   #dialog-toolbar {
     height: 48px;
+  }
+  #site-viewport[data-checkout="true"] {
+    padding: 0;
+    justify-content: flex-start;
+    background: #fffefa;
+  }
+  #site-dialog[data-checkout="true"] {
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  #site-dialog[data-checkout="true"] #dialog-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    min-height: 52px;
+    padding: max(4px, env(safe-area-inset-top, 0px)) 12px 4px 20px;
+  }
+  #checkout-toolbar-title {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    font-family: Inter, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #30372b;
+  }
+  html[data-input-active="true"] #keyboard-done {
+    display: flex;
+  }
+  html[data-input-active="true"] #checkout-footer,
+  html[data-keyboard-open="true"] #checkout-footer {
+    display: none;
+  }
+  #checkout-scroll {
+    scroll-behavior: auto;
+    scroll-padding-block: 36px;
   }
   #checkout-footer {
     padding-top: 10px !important;

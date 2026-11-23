@@ -433,3 +433,100 @@ test("scheduled reconciliation confirms a paid invoice without a browser return"
     1,
   );
 });
+
+test("online order is silent until authoritative bank success; repeated callbacks send once", async () => {
+  const f = await fixture();
+  await f.call("/api/payments/create", {
+    method: "POST",
+    token: f.token,
+    data: {
+      requestId: randomUUID(),
+      order: { ...details, paymentMethod: "online" },
+    },
+  });
+  await f.drain();
+  const sent = () => f.calls.filter((c) => c.url.includes("telegram"));
+  assert.equal(sent().length, 0);
+  assert.equal(
+    f.DB.db.prepare("SELECT count(*) AS n FROM notifications").get().n,
+    0,
+  );
+  const webhook = () =>
+    f.call("/api/payments/webhook/test-webhook", {
+      method: "POST",
+      origin: null,
+      data: { invoiceId: "invoice-1", status: "success" },
+    });
+  await webhook();
+  await f.drain();
+  assert.equal(sent().length, 0);
+  f.setBank("success");
+  f.setBadAmount(true);
+  await webhook();
+  await f.drain();
+  assert.equal(sent().length, 0);
+  f.setBadAmount(false);
+  await webhook();
+  await f.drain();
+  assert.equal(sent().length, 1);
+  assert.match(
+    JSON.parse(sent()[0].init.body).text,
+    /Оплату підтверджено банком/,
+  );
+  await webhook();
+  await f.drain();
+  assert.equal(sent().length, 1);
+});
+
+for (const status of [
+  "created",
+  "processing",
+  "hold",
+  "failure",
+  "expired",
+  "reversed",
+]) {
+  test(`online ${status} does not send an order to Telegram`, async () => {
+    const f = await fixture();
+    await f.call("/api/payments/create", {
+      method: "POST",
+      token: f.token,
+      data: {
+        requestId: randomUUID(),
+        order: { ...details, paymentMethod: "online" },
+      },
+    });
+    await f.drain();
+    f.setBank(status);
+    await f.call("/api/payments/webhook/test-webhook", {
+      method: "POST",
+      origin: null,
+      data: { invoiceId: "invoice-1", status: "success" },
+    });
+    await f.drain();
+    assert.equal(f.calls.filter((c) => c.url.includes("telegram")).length, 0);
+    assert.equal(
+      f.DB.db.prepare("SELECT count(*) AS n FROM notifications").get().n,
+      0,
+    );
+  });
+}
+
+test("legacy queued notifications for unpaid online invoices are not delivered after upgrade", async () => {
+  const f = await fixture();
+  const r = await f.call("/api/payments/create", {
+    method: "POST",
+    token: f.token,
+    data: {
+      requestId: randomUUID(),
+      order: { ...details, paymentMethod: "online" },
+    },
+  });
+  const order = await r.json();
+  await f.drain();
+  f.DB.db
+    .prepare("INSERT INTO notifications (id,order_id,payload) VALUES (?,?,?)")
+    .run(order.orderId + ":created", order.orderId, "Old unpaid notification");
+  await f.worker.flush(f.env);
+  assert.equal(f.calls.filter((c) => c.url.includes("telegram")).length, 0);
+});

@@ -858,7 +858,10 @@ function App() {
             onPress={close}
             accessibilityLabel="Закрити вікно"
           />
-          <View nativeID="site-viewport">
+          <View
+            nativeID="site-viewport"
+            dataSet={{ checkout: contact ? "true" : "false" }}
+          >
             <View
               dataSet={{ checkout: contact ? "true" : "false" }}
               nativeID="site-dialog"
@@ -882,6 +885,30 @@ function App() {
               ]}
             >
               <View nativeID="dialog-toolbar">
+                {contact && (
+                  <>
+                    <Text nativeID="checkout-toolbar-title">
+                      Оформлення замовлення
+                    </Text>
+                    <Pressable
+                      nativeID="keyboard-done"
+                      role="button"
+                      accessibilityLabel="Готово — закрити клавіатуру"
+                      onPress={() => document.activeElement?.blur?.()}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Inter",
+                          fontSize: 16,
+                          fontWeight: "600",
+                          color: "#477f17",
+                        }}
+                      >
+                        Готово
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
                 <Pressable
                   ref={closeButton}
                   role="button"

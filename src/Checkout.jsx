@@ -96,6 +96,7 @@ function SearchField({
     setQuery(item.name);
     setOpen(false);
     setItems([]);
+    document.activeElement?.blur?.();
   };
   return (
     <View style={{ marginBottom: 18 }}>
@@ -115,6 +116,10 @@ function SearchField({
           placeholderTextColor="#989e91"
           value={query}
           editable={!disabled}
+          autoComplete="off"
+          autoCorrect={false}
+          spellCheck={false}
+          returnKeyType="done"
           onFocus={() => setOpen(true)}
           onChangeText={(text) => {
             setQuery(text);

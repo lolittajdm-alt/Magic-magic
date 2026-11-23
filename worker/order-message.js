@@ -32,4 +32,5 @@ export function orderMessage(order) {
     `ID: ${order.id}`,
   ].join("\n");
 }
-export const shouldNotify = (status) => Object.hasOwn(labels, status);
+export const shouldNotify = (status) =>
+  status === "awaiting_payment_on_delivery" || status === "success";

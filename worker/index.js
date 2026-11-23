@@ -74,7 +74,7 @@ const getOrder = (env, id) =>
 function notification(env, order) {
   return stmt(
     env,
-    "INSERT OR IGNORE INTO notifications (id,order_id,payload) SELECT ?,?,? FROM orders WHERE id=? AND digest=? AND status=?",
+    "INSERT OR IGNORE INTO notifications (id,order_id,payload) SELECT ?,?,? FROM orders WHERE id=? AND digest=? AND status=? AND status IN ('awaiting_payment_on_delivery','success')",
     `${order.id}:${order.status}`,
     order.id,
     orderMessage(order),
@@ -167,7 +167,7 @@ export function createWorker({ request = fetch } = {}) {
         lease = randomBytes(16).toString("hex");
       const task = await stmt(
         env,
-        `UPDATE notifications SET lease_until=?,lease_token=? WHERE id=(SELECT id FROM notifications WHERE sent_at IS NULL AND next_at<=? AND lease_until<=? ORDER BY next_at LIMIT 1) AND lease_until<=? RETURNING *`,
+        `UPDATE notifications SET lease_until=?,lease_token=? WHERE id=(SELECT n.id FROM notifications n JOIN orders o ON o.id=n.order_id WHERE n.sent_at IS NULL AND n.next_at<=? AND n.lease_until<=? AND o.status IN ('awaiting_payment_on_delivery','success') AND n.id=o.id||':'||o.status ORDER BY n.next_at LIMIT 1) AND lease_until<=? RETURNING *`,
         now + 60000,
         lease,
         now,
@@ -340,24 +340,23 @@ export function createWorker({ request = fetch } = {}) {
         page_url: result.pageUrl,
         status: "created",
       });
-      await env.DB.batch([
-        stmt(
-          env,
-          "UPDATE orders SET invoice_id=?,page_url=?,status=? WHERE id=?",
-          order.invoice_id,
-          order.page_url,
-          order.status,
-          id,
-        ),
-        notification(env, order),
-      ]);
+      await stmt(
+        env,
+        "UPDATE orders SET invoice_id=?,page_url=?,status=? WHERE id=?",
+        order.invoice_id,
+        order.page_url,
+        order.status,
+        id,
+      ).run();
       return publicOrder(order);
     } catch (error) {
       order.status = "creation_unconfirmed";
-      await env.DB.batch([
-        stmt(env, "UPDATE orders SET status=? WHERE id=?", order.status, id),
-        notification(env, order),
-      ]);
+      await stmt(
+        env,
+        "UPDATE orders SET status=? WHERE id=?",
+        order.status,
+        id,
+      ).run();
       throw error;
     }
   }
@@ -494,15 +493,12 @@ export function createWorker({ request = fetch } = {}) {
           ).all();
           for (const order of interrupted.results) {
             const next = { ...order, status: "creation_unconfirmed" };
-            await env.DB.batch([
-              stmt(
-                env,
-                "UPDATE orders SET status=? WHERE id=? AND status='creating'",
-                next.status,
-                next.id,
-              ),
-              notification(env, next),
-            ]);
+            await stmt(
+              env,
+              "UPDATE orders SET status=? WHERE id=? AND status='creating'",
+              next.status,
+              next.id,
+            ).run();
           }
           const rows = await stmt(
             env,
