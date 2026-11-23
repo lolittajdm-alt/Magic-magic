@@ -413,6 +413,25 @@ export default function Checkout({ apiAvailable = true }) {
             ? `№ ${confirmed.orderNumber} · Оплата при отриманні`
             : "Залиште контакти, а ми підготуємо вашу гру до нових пригод."}
         </Text>
+        {confirmed && (
+          <View style={{ gap: 10, marginBottom: 24 }}>
+            <Text style={[s.sectionTitle, { fontSize: 18 }]}>
+              Очікуйте СМС підтвердження
+            </Text>
+            <Text style={[s.reviewText, { fontSize: 15, lineHeight: 23 }]}>
+              {
+                "Дякуємо за покупку та довіру до нас!\nМи вже готуємо ваше замовлення до відправлення."
+              }
+            </Text>
+            <Text style={[s.reviewText, { fontSize: 15, lineHeight: 23 }]}>
+              Очікуйте SMS-повідомлення від служби доставки з номером ТТН для
+              відстеження вашої посилки.
+            </Text>
+            <Text style={[s.reviewText, { fontSize: 15, lineHeight: 23 }]}>
+              Дякуємо, що обрали нас! Бажаємо приємних покупок!
+            </Text>
+          </View>
+        )}
         <View style={[s.product, mobile && { flexWrap: "wrap" }]}>
           <Image
             source={{ uri: assetUrl("/assets/checkout-product.webp") }}
@@ -425,35 +444,39 @@ export default function Checkout({ apiAvailable = true }) {
             <Text style={s.hint}>Набір для гри · {quantity} шт.</Text>
             <Text style={s.productPrice}>{formatPrice(UNIT_PRICE)} / шт.</Text>
           </View>
-          <View style={[s.quantity, mobile && { marginLeft: "auto" }]}>
-            <Pressable
-              role="button"
-              accessibilityLabel="Зменшити кількість"
-              disabled={quantity === 1 || review || paying}
-              onPress={() => setQuantity(quantity - 1)}
-              style={[
-                s.qtyButton,
-                { width: target, height: target },
-                (quantity === 1 || review) && { opacity: 0.35 },
-              ]}
-            >
-              <Minus size={size(15)} />
-            </Pressable>
-            <Text style={[s.qtyText, { fontSize: size(14) }]}>{quantity}</Text>
-            <Pressable
-              role="button"
-              accessibilityLabel="Збільшити кількість"
-              disabled={quantity === 10 || review || paying}
-              onPress={() => setQuantity(quantity + 1)}
-              style={[
-                s.qtyButton,
-                { width: target, height: target },
-                (quantity === 10 || review) && { opacity: 0.35 },
-              ]}
-            >
-              <Plus size={size(15)} />
-            </Pressable>
-          </View>
+          {!confirmed && (
+            <View style={[s.quantity, mobile && { marginLeft: "auto" }]}>
+              <Pressable
+                role="button"
+                accessibilityLabel="Зменшити кількість"
+                disabled={quantity === 1 || review || paying}
+                onPress={() => setQuantity(quantity - 1)}
+                style={[
+                  s.qtyButton,
+                  { width: target, height: target },
+                  (quantity === 1 || review) && { opacity: 0.35 },
+                ]}
+              >
+                <Minus size={size(15)} />
+              </Pressable>
+              <Text style={[s.qtyText, { fontSize: size(14) }]}>
+                {quantity}
+              </Text>
+              <Pressable
+                role="button"
+                accessibilityLabel="Збільшити кількість"
+                disabled={quantity === 10 || review || paying}
+                onPress={() => setQuantity(quantity + 1)}
+                style={[
+                  s.qtyButton,
+                  { width: target, height: target },
+                  (quantity === 10 || review) && { opacity: 0.35 },
+                ]}
+              >
+                <Plus size={size(15)} />
+              </Pressable>
+            </View>
+          )}
         </View>
         {review ? (
           <View style={s.review}>
@@ -772,39 +795,29 @@ export default function Checkout({ apiAvailable = true }) {
           )}
         </View>
       </ScrollView>
-      <View
-        nativeID="checkout-footer"
-        style={{
-          flexShrink: 0,
-          paddingHorizontal: contentPadding,
-          paddingTop: 16,
-          paddingBottom: width < 700 ? 12 : 20,
-          backgroundColor: "#fffefa",
-          borderTopWidth: 1,
-          borderColor: "#edf0e6",
-        }}
-      >
-        {!apiAvailable && (
-          <Text role="status" style={[s.error, { marginBottom: 10 }]}>
-            Оформлення тимчасово недоступне: підключаємо доставку та оплату.
-          </Text>
-        )}
-        {error && (
-          <Text role="alert" style={[s.error, { marginBottom: 12 }]}>
-            {error}
-          </Text>
-        )}
-        {confirmed ? (
-          <View style={s.confirmation}>
-            <View style={s.confirmationIcon}>
-              <Check size={22} color="#57951f" />
-            </View>
-            <Text style={s.confirmationText}>
-              Замовлення збережено. Оплатіть товар і комісію при отриманні у
-              Новій пошті.
+      {!confirmed && (
+        <View
+          nativeID="checkout-footer"
+          style={{
+            flexShrink: 0,
+            paddingHorizontal: contentPadding,
+            paddingTop: 16,
+            paddingBottom: width < 700 ? 12 : 20,
+            backgroundColor: "#fffefa",
+            borderTopWidth: 1,
+            borderColor: "#edf0e6",
+          }}
+        >
+          {!apiAvailable && (
+            <Text role="status" style={[s.error, { marginBottom: 10 }]}>
+              Оформлення тимчасово недоступне: підключаємо доставку та оплату.
             </Text>
-          </View>
-        ) : (
+          )}
+          {error && (
+            <Text role="alert" style={[s.error, { marginBottom: 12 }]}>
+              {error}
+            </Text>
+          )}
           <>
             <Pressable
               role="button"
@@ -856,8 +869,8 @@ export default function Checkout({ apiAvailable = true }) {
               </Text>
             </View>
           </>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -889,27 +902,6 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 17,
     flexWrap: "wrap",
-  },
-  confirmation: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 8,
-  },
-  confirmationIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#eff5e8",
-  },
-  confirmationText: {
-    flex: 1,
-    fontFamily: "Inter",
-    fontSize: 13,
-    lineHeight: 20,
-    color: "#505b45",
   },
   productPrice: {
     fontFamily: "Inter",
