@@ -1,87 +1,104 @@
-# Магнітні Шахи — React Native Web
+# Магнітні Шахи
 
-Локальный адаптивный сайт на React Native и React Native Web. Основные элементы интерфейса: View, Text, Image, Pressable, ScrollView, Modal и TextInput. Vite собирает браузерную версию; alias react-native → react-native-web.
+React Native Web + Vite. Витрина публикуется на GitHub Pages; закрытый обработчик заказов работает в Cloudflare Workers, заказы и очередь уведомлений сохраняются в D1.
 
-## Запуск
+## Работа магазина
+
+Покупатель выбирает город и отделение Новой пошты, заполняет контакты и нажимает «Оформити замовлення». Заказ сохраняется в D1, продавцу автоматически отправляется сообщение от Telegram-бота. Переход покупателя в Telegram не требуется. Если Telegram временно недоступен, сохранённое уведомление повторяется с задержкой. В редком случае обрыва связи после доставки возможен повтор сообщения с тем же номером заказа; номер позволяет распознать дубликат.
+
+При выборе онлайн-оплаты обработчик создаёт счёт mono и направляет покупателя на защищённую страницу банка. Apple Pay и Google Pay доступны на стороне mono при поддержке устройства, браузера и карты. Данные карты сайт не собирает. Заказ до оплаты отмечается как неоплаченный; сообщение об успешной оплате отправляется только после проверки суммы, валюты и статуса в API банка. Webhook сообщает о необходимости проверки, но его содержимое само по себе не подтверждает оплату. Плановая проверка раз в минуту подхватывает платежи без возврата покупателя на сайт.
+
+Цена набора в текущей конфигурации — **10 грн**. Цена рассчитывается в обработчике (`server/order.js`), а не принимается из браузера. Для оплаты при получении отдельно отображается комиссия 2% + 20 грн; доставка оплачивается отдельно. Накладные и отправка посылок автоматически не создаются.
+
+## Локальный запуск
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Открыть http://127.0.0.1:5173.
+Без `VITE_API_BASE_URL` Vite использует старый локальный обработчик из `server/payments.js`: он сохраняет заказы в `.data/orders` и предназначен для разработки, не отправляет Telegram-уведомления.
+
+Для полной проверки Cloudflare-обработчика:
+
+1. Скопировать `worker/.dev.vars.example` в `worker/.dev.vars`, заполнить секреты.
+2. Применить миграции и запустить Worker:
 
 ```sh
-npm run build
-npm run preview
+npx wrangler d1 migrations apply magic-magic-orders --local --config worker/wrangler.jsonc
+npm run worker:dev -- --ip 127.0.0.1 --port 8787 --var ALLOWED_ORIGINS:http://127.0.0.1:5173 --var SHOP_URL:http://127.0.0.1:5173/
 ```
 
-## Возможности
-
-- Адаптивная страница игры: мобильная версия, планшет и компьютер.
-- Четыре отдельно обработанные иллюстрации правил, подробности в модальном окне.
-- Свайп и привязка карточек к краю на телефоне; две колонки на планшете и четыре на компьютере.
-- Плавное раскрытие описания, появление разделов при прокрутке и анимация окон.
-- Настройка уменьшенного движения учитывается автоматически.
-- Форма заказа с поиском города и отделения Новой пошты, онлайн-оплатой и оплатой при получении.
-- Контактный блок: реальные контакты добавляются в `feedbackContacts` в `src/Feedback.jsx`. Пустые контакты не ведут на чужие адреса.
-- Исходные пиксельные шрифты и иллюстрации сохранены. Основные картинки подаются в WebP.
-
-## Проверка и изображения
+3. Запустить Vite с публичным адресом локального API:
 
 ```sh
-npm test
-npm run format:check
-npm run build
+VITE_API_BASE_URL=http://127.0.0.1:8787 npm run dev
 ```
 
-Тесты оплаты используют имитацию ответа банка и не создают реальные платежи. Проверки доставки не обращаются к Новой поште.
+Реальные ключи приведут к реальным сообщениям бота и созданию счетов. Для автоматических тестов реальные ключи не нужны.
 
-`npm run assets:optimize` обновляет WebP-копии исходных PNG. Исходники остаются на месте. Для последнего набора иллюстраций размер уменьшился с 18,86 до 2,08 МБ.
+## Cloudflare: первоначальная публикация
 
-## GitHub и размещение
+Требуется аккаунт Cloudflare с Workers Free и D1 Free. Использование ограничено квотами бесплатного тарифа; платный тариф автоматически не включается.
+
+```sh
+npx wrangler login --scopes account:read user:read workers:write workers_scripts:write d1:write
+npx wrangler d1 create magic-magic-orders
+```
+
+Заменить `database_id` в `worker/wrangler.jsonc` на созданную базу, затем:
+
+```sh
+npx wrangler d1 migrations apply magic-magic-orders --remote --config worker/wrangler.jsonc
+npm run worker:deploy
+```
+
+Задать через `wrangler secret put ИМЯ --config worker/wrangler.jsonc` следующие **секреты**:
+
+- `TELEGRAM_BOT_TOKEN` — токен бота, только на Worker.
+- `TELEGRAM_CHAT_ID` — личный чат продавца, предварительно начавшего диалог с ботом.
+- `NOVA_POSHTA_API_KEY` — поиск города и отделений.
+- `MONO_API_TOKEN` — эквайринг mono.
+- `SESSION_SECRET` — случайное значение не менее 32 байт для подписи сессий.
+- `WEBHOOK_SECRET` — независимое случайное значение не менее 32 байт для адреса webhook.
+
+Нельзя добавлять эти значения в исходники, GitHub Actions YAML, публичные файлы или переменные с префиксом `VITE_`. Смена `SESSION_SECRET` завершит существующие сессии покупателей. При смене `WEBHOOK_SECRET` старые счета сохранят прежний адрес уведомлений; плановая сверка продолжит их проверять.
+
+`SHOP_URL` — полный адрес витрины с `/Magic-magic/`; `ALLOWED_ORIGINS` — точные разрешённые источники запросов, разделённые запятыми. В production разрешён только `https://lolittajdm-alt.github.io`.
+
+Опубликованный обработчик: https://magic-magic-orders.blockfolio-native-web.workers.dev. Pages-сборка использует этот публичный адрес по умолчанию (`src/api.js`); `VITE_API_BASE_URL` позволяет переопределить его для тестирования. Не задавайте localhost для production-сборки. После смены адреса проверяйте поиск, тестовое оформление, D1 и доставку сообщения.
+
+## GitHub Pages
 
 Сайт: https://lolittajdm-alt.github.io/Magic-magic/
 
-В Settings → Pages выбран Source: **GitHub Actions**. Workflow `.github/workflows/deploy-pages.yml` проверяет и собирает сайт при обновлении `main`, затем публикует только `dist`. Не переключайте Pages на `main / (root)`: там находятся исходники, которые браузер не может запустить без Vite.
-
-Для проверки этой сборки локально:
+Settings → Pages → Source: **GitHub Actions**. `.github/workflows/deploy-pages.yml` проверяет исходники, собирает Vite и публикует только `dist`. Режим `pages` задаёт `/Magic-magic/` как базовый путь. Не публикуйте исходный `index.html` напрямую из корня ветки.
 
 ```sh
 npm run build:pages
 npm run preview -- --mode pages
 ```
 
-Открыть http://127.0.0.1:4173/Magic-magic/. Режим `pages` задаёт базовый путь `/Magic-magic/`; изображения используют `assetUrl`, шрифты обрабатывает Vite. На сайте и в локальной версии форма готовит сообщение для личного Telegram продавца. Контакты и доставка вводятся вручную; оплата при получении согласуется с продавцом. Покупатель проверяет данные, переходит в Telegram и сам отправляет сообщение. Серверные запросы для оформления не выполняются.
+Cloudflare обновляется отдельно командой `npm run worker:deploy`; публикация витрины сама не обновляет Worker и базу.
 
-В репозиторий можно загружать исходники и публичные изображения. `.env.local`, `.data`, резервные копии и локальные снимки экрана исключены через `.gitignore`. Для настройки сервера скопируйте `.env.example` в `.env.local` и заполните значения локально.
+## Данные и устойчивость
 
-GitHub Pages подходит только для статической витрины. Поиск доставки, оформление заказа и оплата требуют Node-сервера; публикация одной папки `dist` их не запускает. Текущий сервер подключён к локальному Vite и preview. Для рабочего магазина нужен отдельный production-сервер с постоянным приватным хранилищем заказов и HTTPS.
+- Заказ записывается до создания банковского счёта; повтор запроса с тем же идентификатором не создаёт новый заказ или счёт.
+- Неопределённый результат создания счёта требует проверки у продавца: повторное списание автоматически не инициируется.
+- D1 хранит контакты, доставку, суммы, статусы и очередь Telegram. Доступ к базе через Cloudflare должен быть только у продавца.
+- Браузер получает подписанную сессию, хранит её в `sessionStorage` и может проверять только свои заказы. В API используются точные разрешённые origins, ограничения размера и частоты запросов. Telegram и банковские ключи браузер не получает.
+- База заказов не заменяется при обычном обновлении Worker. Экспорт резервной копии: `npx wrangler d1 export magic-magic-orders --remote --output .data/orders-backup.sql --config worker/wrangler.jsonc`. Копия содержит персональные данные: хранить приватно.
+- `.env.local`, `.dev.vars`, `.data`, `.wrangler`, резервные копии и снимки экрана исключены из Git. Не добавлять их принудительно.
 
-## Checkout and mono payments
+## Проверки
 
-The checkout validates contacts, quantity and delivery selection using Nova Poshta lookup. One set costs 10.00 UAH. The checkout offers online payment or cash on delivery. The online action validates the form, creates an invoice on the server and redirects to the hosted mono payment page. Cash on delivery confirms and stores an unpaid order locally, with a server-calculated transfer fee of 2% + 20 UAH; shipping is charged separately. No card details are collected by this app. Google Pay and Apple Pay are not separate integrations.
+```sh
+npm test
+npm run format:check
+npm run build:pages
+npx wrangler deploy --dry-run --config worker/wrangler.jsonc
+```
 
-Server-only `.env.local` settings:
+Тесты используют SQLite в памяти и имитации API банка, Новой пошты и Telegram: без платежей и сообщений. Проверяются сохранение заказа, повторная доставка, отсутствие дубликатов счетов, принадлежность сессии, CORS, ограничение запросов и невозможность подделать успешную оплату через webhook.
 
-- `NOVA_POSHTA_API_KEY`: delivery lookups.
-- `MONO_API_TOKEN`: acquiring token; never use a `VITE_` prefix.
-- `APP_ORIGIN`: exact site origin, defaults to `http://127.0.0.1:5173`. Set the real HTTPS origin when deploying; local preview on another port needs a matching value.
-
-`npm run dev` and `npm run preview` provide the server routes. Static hosting of `dist` alone cannot process orders or payments. Production needs a persistent Node server, durable private storage, HTTPS and the configured origin.
-
-Payment endpoints: `GET /api/payments/config`, `POST /api/payments/create`, `POST /api/payments/cod`, `GET /api/payments/status?orderId=...`. An HttpOnly session cookie restricts status access. Creation accepts quantity and delivery/contact details, recalculates the amount server-side and persists the order in ignored `.data/orders/` before contacting mono. Keep this directory private and back it up: it is the seller's local order record. No shipping label or fulfillment automation is created. The current storefront uses the manual Telegram flow described below.
-
-Repeated requests with the same request ID reuse the invoice. A timeout after contacting mono is treated as ambiguous and cannot silently create another invoice with that ID. The payment return page queries mono to confirm the invoice ID, currency, amount and status; a redirect alone never marks an order paid. No webhook is configured on localhost. Status refresh currently occurs when the buyer returns to the result page or manually requests another check; orders paid without a return must be reconciled in the mono merchant account.
-
-Checks: `node --test server/payments.test.js` and `npm run build`. Tests use a mocked bank and do not charge cards.
-
-
-
-## Заказ сообщением в личный Telegram
-
-Текущая витрина использует `<Checkout telegramOrder />`: после проверки формы кнопка «Перейти в Telegram» открывает `https://t.me/chabaniuk_vladyslav?text=…` с подготовленным текстом заказа. Покупатель самостоятельно нажимает «Надіслати» в Telegram, продавец подтверждает заказ в переписке. Открытие ссылки не считается отправкой или оплатой; сайт не может проверить доставку сообщения. Оплата онлайн в этом режиме не предлагается.
-
-На шаге проверки доступны текст заказа и кнопка копирования; если буфер обмена недоступен, текст можно выделить вручную. Форма сохраняется в открытой вкладке при переходе в Telegram, но не записывается в постоянное хранилище. Контакты и доставка попадают в ссылку только после подготовки заказа; сообщение адресовано личному аккаунту продавца, не боту. Автоматическая отправка через Bot API отключена. Секреты для этого режима не нужны.
-
-`src/telegramOrder.js` формирует текст, сумму и ссылку; `src/telegramOrder.test.js` проверяет получателя, кодирование специальных символов, доставку и суммы. Старые серверные маршруты оплаты остаются в проекте, но текущая форма их не вызывает.
+Мобильная форма использует отдельную прокрутку, блокировку фона и VisualViewport для подстройки под клавиатуру. Контактные данные витрины редактируются в `src/Feedback.jsx`. Иллюстрации оптимизированы в WebP; `npm run assets:optimize` обновляет их из исходников.

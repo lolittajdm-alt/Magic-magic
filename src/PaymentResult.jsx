@@ -1,3 +1,4 @@
+import { apiFetch } from "./api.js";
 import React, { useEffect, useState } from "react";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 const messages = {
@@ -26,7 +27,7 @@ export default function PaymentResult({ orderId }) {
       setChecking(true);
       setError("");
       try {
-        const response = await fetch(
+        const response = await apiFetch(
           "/api/payments/status?orderId=" + encodeURIComponent(orderId),
           { signal: controller.signal },
         );

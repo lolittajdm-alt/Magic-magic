@@ -1,3 +1,5 @@
+import { API_AVAILABLE } from "./api.js";
+import { useModalViewport } from "./useModalViewport.js";
 import { assetUrl } from "./assetUrl.js";
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
@@ -155,9 +157,6 @@ function App() {
     tablet = width < 1100;
   const reducedMotion = useReducedMotion();
   useSectionReveal(reducedMotion);
-  const checkoutScale = mobile
-    ? 1
-    : Math.min(1.4, Math.max(1.15, width / 1100), (width * 0.92) / 680);
   const { size, target } = useControlScale();
   const circleStyle = [
     s.circle,
@@ -193,26 +192,9 @@ function App() {
       if (e.key === "Escape") close();
     };
     document.addEventListener("keydown", handler);
-    const old = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.dataset.modalOpen = "true";
-    const viewport = window.visualViewport;
-    const fitViewport = () => {
-      document.documentElement.style.setProperty(
-        "--visible-height",
-        `${viewport?.height || window.innerHeight}px`,
-      );
-    };
-    fitViewport();
-    viewport?.addEventListener("resize", fitViewport);
-    return () => {
-      viewport?.removeEventListener("resize", fitViewport);
-      document.documentElement.style.removeProperty("--visible-height");
-      document.body.style.overflow = old;
-      delete document.documentElement.dataset.modalOpen;
-      document.removeEventListener("keydown", handler);
-    };
+    return () => document.removeEventListener("keydown", handler);
   }, [modal]);
+  useModalViewport(modal);
   const notes = [
     {
       title: "Світ починається з одного блоку",
@@ -864,7 +846,7 @@ function App() {
       <Modal
         visible={modal}
         transparent
-        animationType={reducedMotion ? "none" : "fade"}
+        animationType="none"
         onRequestClose={close}
         onShow={() => closeButton.current?.focus()}
       >
@@ -876,129 +858,137 @@ function App() {
             onPress={close}
             accessibilityLabel="Закрити вікно"
           />
-          <View
-            nativeID="site-dialog"
-            role="dialog"
-            aria-modal="true"
-            accessibilityLabel={
-              contact
-                ? "Оформлення замовлення"
-                : selected !== null
-                  ? projects[selected].title
-                  : activeNote?.title
-            }
-            style={[
-              s.modal,
-              { width: mobile ? "92%" : 680, maxHeight: "90dvh" },
-              contact && {
-                zoom: checkoutScale,
-                maxHeight: `calc(90dvh / ${checkoutScale})`,
-              },
-            ]}
-          >
-            <Pressable
-              ref={closeButton}
-              role="button"
-              onPress={close}
-              accessibilityLabel="Закрити"
+          <View nativeID="site-viewport">
+            <View
+              dataSet={{ checkout: contact ? "true" : "false" }}
+              nativeID="site-dialog"
+              role="dialog"
+              aria-modal="true"
+              accessibilityLabel={
+                contact
+                  ? "Оформлення замовлення"
+                  : selected !== null
+                    ? projects[selected].title
+                    : activeNote?.title
+              }
               style={[
-                s.close,
-                { width: target, height: target, borderRadius: target / 2 },
+                s.modal,
+                {
+                  width: mobile ? "100%" : 720,
+                  maxWidth: "100%",
+                  minHeight: 0,
+                  flexShrink: 1,
+                },
               ]}
             >
-              <X size={size(22)} />
-            </Pressable>
-            {contact ? (
-              <Checkout telegramOrder />
-            ) : (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                style={{ overscrollBehavior: "contain" }}
-                contentContainerStyle={{ padding: mobile ? 25 : 38 }}
-              >
-                {selected !== null && (
-                  <>
-                    <RuleImage
-                      index={selected}
-                      label={projects[selected].title}
-                      style={{ marginTop: 20 }}
-                    />
-                    <Text style={[s.eyebrow, { marginTop: 26 }]}>
-                      {projects[selected].category} · ПРАВИЛА ГРИ
-                    </Text>
-                    <Text role="heading" style={[s.modalTitle]}>
-                      {projects[selected].title}
-                    </Text>
-                    <Text style={s.body}>{projects[selected].description}</Text>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: 8,
-                        flexWrap: "wrap",
-                        marginTop: 22,
-                      }}
-                    >
-                      {projects[selected].tags.map((tag) => (
-                        <Text key={tag} style={s.tag}>
-                          {tag}
-                        </Text>
-                      ))}
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        marginTop: 30,
-                      }}
-                    >
-                      <Pressable
-                        role="button"
-                        onPress={() => setSelected((selected + 3) % 4)}
-                        style={circleStyle}
-                        accessibilityLabel="Попереднє правило"
-                      >
-                        <ArrowLeft size={size(20)} />
-                      </Pressable>
-                      <Text style={[s.body, { alignSelf: "center" }]}>
-                        {selected + 1} / 4
+              <View nativeID="dialog-toolbar">
+                <Pressable
+                  ref={closeButton}
+                  role="button"
+                  onPress={close}
+                  accessibilityLabel="Закрити"
+                  style={[
+                    s.close,
+                    { width: target, height: target, borderRadius: target / 2 },
+                  ]}
+                >
+                  <X size={size(22)} />
+                </Pressable>
+              </View>
+              {contact ? (
+                <Checkout apiAvailable={API_AVAILABLE} />
+              ) : (
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{ overscrollBehavior: "contain" }}
+                  contentContainerStyle={{ padding: mobile ? 25 : 38 }}
+                >
+                  {selected !== null && (
+                    <>
+                      <RuleImage
+                        index={selected}
+                        label={projects[selected].title}
+                        style={{ marginTop: 20 }}
+                      />
+                      <Text style={[s.eyebrow, { marginTop: 26 }]}>
+                        {projects[selected].category} · ПРАВИЛА ГРИ
                       </Text>
-                      <Pressable
-                        role="button"
-                        onPress={() => setSelected((selected + 1) % 4)}
-                        style={circleStyle}
-                        accessibilityLabel="Наступне правило"
-                      >
-                        <ArrowRight size={size(20)} />
-                      </Pressable>
-                    </View>
-                  </>
-                )}
-                {activeNote && (
-                  <>
-                    <Text style={[s.eyebrow, { marginTop: 18 }]}>
-                      {activeNote.reel ? "У ПРОЦЕСІ" : "ЩОДЕННИК БІЛДЕРА"}
-                    </Text>
-                    <Text role="heading" style={s.modalTitle}>
-                      {activeNote.title}
-                    </Text>
-                    <Text style={[s.body, { lineHeight: 29 }]}>
-                      {activeNote.body}
-                    </Text>
-                    {activeNote.reel && (
-                      <Button
-                        style={{ marginTop: 25, alignSelf: "flex-start" }}
-                        onPress={() => {
-                          close();
-                          go("projects");
+                      <Text role="heading" style={[s.modalTitle]}>
+                        {projects[selected].title}
+                      </Text>
+                      <Text style={s.body}>
+                        {projects[selected].description}
+                      </Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 8,
+                          flexWrap: "wrap",
+                          marginTop: 22,
                         }}
                       >
-                        Переглянути правила
-                      </Button>
-                    )}
-                  </>
-                )}
-              </ScrollView>
-            )}
+                        {projects[selected].tags.map((tag) => (
+                          <Text key={tag} style={s.tag}>
+                            {tag}
+                          </Text>
+                        ))}
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          marginTop: 30,
+                        }}
+                      >
+                        <Pressable
+                          role="button"
+                          onPress={() => setSelected((selected + 3) % 4)}
+                          style={circleStyle}
+                          accessibilityLabel="Попереднє правило"
+                        >
+                          <ArrowLeft size={size(20)} />
+                        </Pressable>
+                        <Text style={[s.body, { alignSelf: "center" }]}>
+                          {selected + 1} / 4
+                        </Text>
+                        <Pressable
+                          role="button"
+                          onPress={() => setSelected((selected + 1) % 4)}
+                          style={circleStyle}
+                          accessibilityLabel="Наступне правило"
+                        >
+                          <ArrowRight size={size(20)} />
+                        </Pressable>
+                      </View>
+                    </>
+                  )}
+                  {activeNote && (
+                    <>
+                      <Text style={[s.eyebrow, { marginTop: 18 }]}>
+                        {activeNote.reel ? "У ПРОЦЕСІ" : "ЩОДЕННИК БІЛДЕРА"}
+                      </Text>
+                      <Text role="heading" style={s.modalTitle}>
+                        {activeNote.title}
+                      </Text>
+                      <Text style={[s.body, { lineHeight: 29 }]}>
+                        {activeNote.body}
+                      </Text>
+                      {activeNote.reel && (
+                        <Button
+                          style={{ marginTop: 25, alignSelf: "flex-start" }}
+                          onPress={() => {
+                            close();
+                            go("projects");
+                          }}
+                        >
+                          Переглянути правила
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </ScrollView>
+              )}
+            </View>
           </View>
         </View>
       </Modal>
@@ -1225,9 +1215,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   close: {
-    position: "absolute",
-    right: 15,
-    top: 15,
+    position: "relative",
     width: 38,
     height: 38,
     zIndex: 3,
@@ -1260,7 +1248,7 @@ const paymentOrderId = new URLSearchParams(window.location.search).get(
   "payment",
 );
 createRoot(document.getElementById("root")).render(
-  !__STATIC_SITE__ && paymentOrderId ? (
+  API_AVAILABLE && paymentOrderId ? (
     <PaymentResult orderId={paymentOrderId} />
   ) : (
     <App />

@@ -1,0 +1,8 @@
+# Copy to worker/.dev.vars for local testing. Never commit real credentials.
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+NOVA_POSHTA_API_KEY=
+MONO_API_TOKEN=
+# Generate two independent random values (at least 32 bytes each).
+SESSION_SECRET=
+WEBHOOK_SECRET=

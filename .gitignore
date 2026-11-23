@@ -13,3 +13,5 @@ screenshots/
 # Private Telegram settings
 .dev.vars*
 !.dev.vars.example
+
+.wrangler/

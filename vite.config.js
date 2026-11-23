@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
           "**/telegram/**",
           "**/.git/**",
           "**/server/**",
+          "**/worker/**",
+          "**/.wrangler/**",
           "**/.data/**",
           "**/*.{crt,pem}",
         ],
