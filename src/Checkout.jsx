@@ -219,7 +219,7 @@ function Field({ label, icon: Icon, ...props }) {
     </View>
   );
 }
-export default function Checkout() {
+export default function Checkout({ previewOnly = false }) {
   const { width } = useWindowDimensions(),
     mobile = width < 600;
   const formScroll = useRef(null),
@@ -231,12 +231,13 @@ export default function Checkout() {
     [paymentMethod, setPaymentMethod] = useState("online"),
     [confirmed, setConfirmed] = useState(null);
   useEffect(() => {
+    if (previewOnly) return;
     sessionReady.current = fetch("/api/payments/config")
       .then((response) => response.ok)
       .catch(() => false);
-  }, []);
+  }, [previewOnly]);
   async function pay() {
-    if (paymentLock.current) return;
+    if (previewOnly || paymentLock.current) return;
     paymentLock.current = true;
     setPaying(true);
     setError("");
@@ -331,11 +332,20 @@ export default function Checkout() {
       setError("Вкажіть український номер телефону: +380 та 9 цифр.");
       return;
     }
-    if (!city || !warehouse) {
-      setError("Оберіть місто та відділення зі списків Нової пошти.");
+    if (!city?.name?.trim() || !warehouse?.name?.trim()) {
+      setError(
+        previewOnly
+          ? "Вкажіть місто та номер або адресу відділення Нової пошти."
+          : "Оберіть місто та відділення зі списків Нової пошти.",
+      );
       return;
     }
     setError("");
+    if (previewOnly) {
+      setReview(true);
+      formScroll.current?.scrollTo({ y: 0, animated: false });
+      return;
+    }
     pay();
   }
   return (
@@ -353,13 +363,30 @@ export default function Checkout() {
           aria-level={2}
           style={[s.title, { fontSize: mobile ? 28 : 33 }]}
         >
-          {confirmed ? "Замовлення підтверджено" : "Ще крок до гри."}
+          {confirmed
+            ? "Замовлення підтверджено"
+            : previewOnly && review
+              ? "Перевірте замовлення"
+              : "Ще крок до гри."}
         </Text>
         <Text style={s.subtitle}>
           {confirmed
             ? `№ ${confirmed.orderNumber} · Оплата при отриманні`
-            : "Залиште контакти, а ми підготуємо вашу гру до нових пригод."}
+            : previewOnly
+              ? "Оберіть кількість, заповніть контакти та дані доставки."
+              : "Залиште контакти, а ми підготуємо вашу гру до нових пригод."}
         </Text>
+        {previewOnly && (
+          <View style={s.availabilityNotice}>
+            <Text style={s.availabilityTitle}>
+              Надсилання замовлень ще не доступне
+            </Text>
+            <Text style={s.hint}>
+              Можна заповнити форму та переглянути підсумок. Дані не
+              надсилаються, оплата не проводиться.
+            </Text>
+          </View>
+        )}
         <View style={[s.product, mobile && { flexWrap: "wrap" }]}>
           <Image
             source={{ uri: assetUrl("/assets/checkout-product.webp") }}
@@ -514,23 +541,50 @@ export default function Checkout() {
                 <View style={s.radioDot} />
               </View>
             </View>
-            <SearchField
-              label="Місто або населений пункт"
-              placeholder="Почніть вводити назву міста"
-              value={city}
-              onSelect={selectCity}
-              endpoint="/api/delivery/cities"
-              disabled={paying}
-            />
-            <SearchField
-              label="Відділення або поштомат"
-              placeholder="Номер або адреса відділення"
-              value={warehouse}
-              onSelect={setWarehouse}
-              endpoint={`/api/delivery/warehouses?city=${encodeURIComponent(city?.ref || "")}`}
-              disabled={!city || paying}
-              resetKey={city?.ref}
-            />
+            {previewOnly ? (
+              <View style={{ gap: 16, marginBottom: 18 }}>
+                <Field
+                  label="Місто або населений пункт"
+                  icon={MapPin}
+                  placeholder="Наприклад, Київ"
+                  value={city?.name || ""}
+                  onChangeText={(name) => selectCity({ name })}
+                  maxLength={120}
+                  autoComplete="address-level2"
+                />
+                <Field
+                  label="Відділення або поштомат"
+                  icon={MapPin}
+                  placeholder="Номер або адреса відділення"
+                  value={warehouse?.name || ""}
+                  onChangeText={(name) => setWarehouse({ name })}
+                  maxLength={200}
+                />
+                <Text style={s.hint}>
+                  Вкажіть дані вручну. Пошук відділень поки недоступний.
+                </Text>
+              </View>
+            ) : (
+              <>
+                <SearchField
+                  label="Місто або населений пункт"
+                  placeholder="Почніть вводити назву міста"
+                  value={city}
+                  onSelect={selectCity}
+                  endpoint="/api/delivery/cities"
+                  disabled={paying}
+                />
+                <SearchField
+                  label="Відділення або поштомат"
+                  placeholder="Номер або адреса відділення"
+                  value={warehouse}
+                  onSelect={setWarehouse}
+                  endpoint={`/api/delivery/warehouses?city=${encodeURIComponent(city?.ref || "")}`}
+                  disabled={!city || paying}
+                  resetKey={city?.ref}
+                />
+              </>
+            )}
             <Pressable
               role="checkbox"
               disabled={paying}
@@ -749,8 +803,11 @@ export default function Checkout() {
           <>
             <Pressable
               role="button"
-              disabled={paying}
-              accessibilityState={{ disabled: paying, busy: paying }}
+              disabled={paying || (previewOnly && review)}
+              accessibilityState={{
+                disabled: paying || (previewOnly && review),
+                busy: paying,
+              }}
               onPress={validate}
               style={({ hovered }) => [
                 s.submit,
@@ -759,7 +816,7 @@ export default function Checkout() {
                   paddingVertical: size(15),
                   paddingHorizontal: size(16),
                   gap: size(12),
-                  opacity: paying ? 0.65 : 1,
+                  opacity: paying || (previewOnly && review) ? 0.65 : 1,
                 },
                 hovered && { backgroundColor: "#477f17" },
               ]}
@@ -779,9 +836,13 @@ export default function Checkout() {
                       },
                     ]}
                   >
-                    {paymentMethod === "cod"
-                      ? "Підтвердити замовлення"
-                      : "Перейти до оплати"}
+                    {previewOnly
+                      ? review
+                        ? "Надсилання поки недоступне"
+                        : "Перевірити замовлення"
+                      : paymentMethod === "cod"
+                        ? "Підтвердити замовлення"
+                        : "Перейти до оплати"}
                   </Text>
                   <ArrowRight size={size(18)} color="white" />
                 </>
@@ -790,9 +851,11 @@ export default function Checkout() {
             <View style={s.privacy}>
               <ShieldCheck size={14} color="#8a9380" />
               <Text style={s.privacyText}>
-                {paymentMethod === "cod"
-                  ? "Без передоплати · Оплата при отриманні"
-                  : "Безпечна оплата через mono"}
+                {previewOnly
+                  ? "Попередній перегляд · Замовлення не надіслано"
+                  : paymentMethod === "cod"
+                    ? "Без передоплати · Оплата при отриманні"
+                    : "Безпечна оплата через mono"}
               </Text>
             </View>
           </>
@@ -802,6 +865,21 @@ export default function Checkout() {
   );
 }
 const s = StyleSheet.create({
+  availabilityNotice: {
+    gap: 6,
+    padding: 14,
+    marginBottom: 20,
+    borderRadius: 12,
+    backgroundColor: "#f1f5e9",
+    borderWidth: 1,
+    borderColor: "#dce6cd",
+  },
+  availabilityTitle: {
+    fontFamily: "Inter",
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#53673d",
+  },
   paymentChoices: { marginTop: 8, marginBottom: 22, gap: 10 },
   paymentChoice: {
     flexDirection: "row",

@@ -909,19 +909,7 @@ function App() {
               <X size={size(22)} />
             </Pressable>
             {contact ? (
-              __STATIC_SITE__ ? (
-                <View style={{ padding: 38, paddingTop: 64, gap: 18 }}>
-                  <Text role="heading" style={s.modalTitle}>
-                    Замовлення незабаром
-                  </Text>
-                  <Text style={s.body}>
-                    Онлайн-замовлення поки недоступне. Ми готуємо можливість
-                    оформити доставку та оплату. Дякуємо за інтерес до гри!
-                  </Text>
-                </View>
-              ) : (
-                <Checkout />
-              )
+              <Checkout previewOnly={__STATIC_SITE__} />
             ) : (
               <ScrollView
                 showsVerticalScrollIndicator={false}
