@@ -297,6 +297,7 @@ html[data-modal-open="true"] {
   transform-origin: top left;
   border-radius: 1px;
   object-fit: fill;
+  filter: contrast(1.16) saturate(1.15);
 }
 .hero-magnets {
   position: absolute;
