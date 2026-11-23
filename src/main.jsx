@@ -480,24 +480,26 @@ function App() {
             dataSet={{ expanded: aboutMore }}
             style={{
               width: tablet ? "100%" : "49%",
-              alignSelf: aboutMore && !tablet ? "stretch" : undefined,
+              alignSelf: !tablet ? "stretch" : undefined,
               paddingBottom: 15,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            {aboutMore && (
-              <div className="about-photo-pair about-photo-pair-top">
-                <img
-                  src={projects[0].image}
-                  alt="Дерев’яне поле з магнітними кульками"
-                />
-                <img
-                  src={projects[1].image}
-                  alt="Розташування магнітів під час гри"
-                />
-              </div>
-            )}
+            <div
+              className="about-photo-pair about-photo-pair-top"
+              aria-hidden={!aboutMore}
+              inert={!aboutMore}
+            >
+              <img
+                src={projects[0].image}
+                alt="Дерев’яне поле з магнітними кульками"
+              />
+              <img
+                src={projects[1].image}
+                alt="Розташування магнітів під час гри"
+              />
+            </div>
             <View style={{ width: "100%", position: "relative", zIndex: 1 }}>
               <Crop
                 rect={[94, 580, 435, 254]}
@@ -518,18 +520,20 @@ function App() {
                 }}
               />
             </View>
-            {aboutMore && (
-              <div className="about-photo-pair about-photo-pair-bottom">
-                <img
-                  src={projects[2].image}
-                  alt="Магнітні кульки притягуються одна до одної"
-                />
-                <img
-                  src={projects[3].image}
-                  alt="Останні магніти перед перемогою"
-                />
-              </div>
-            )}
+            <div
+              className="about-photo-pair about-photo-pair-bottom"
+              aria-hidden={!aboutMore}
+              inert={!aboutMore}
+            >
+              <img
+                src={projects[2].image}
+                alt="Магнітні кульки притягуються одна до одної"
+              />
+              <img
+                src={projects[3].image}
+                alt="Останні магніти перед перемогою"
+              />
+            </div>
           </View>
           <View
             style={[
