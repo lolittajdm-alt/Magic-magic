@@ -178,7 +178,7 @@ export function createPaymentApi({
       ...details,
       amount,
       ccy: 980,
-      codFee: Math.round(amount * 0.02),
+      codFee: Math.round(amount * 0.02) + 2000,
       orderNumber: "MC-" + id.slice(0, 12).toUpperCase(),
       status: "awaiting_payment_on_delivery",
       createdAt: new Date().toISOString(),

@@ -11,7 +11,7 @@ const line = (value) => String(value ?? "").replace(/[\r\n\t]/g, " ");
 const money = (value) => (value / 100).toFixed(2) + " грн";
 export function orderMessage(order) {
   const d = JSON.parse(order.details);
-  const fee = Math.round(order.amount * 0.02);
+  const fee = Math.round(order.amount * 0.02) + 2000;
   return [
     `Замовлення MC-${order.id.slice(0, 12).toUpperCase()}`,
     `Статус: ${labels[order.status] || order.status}`,
@@ -19,7 +19,7 @@ export function orderMessage(order) {
     `Сума товарів: ${money(order.amount)}`,
     ...(d.paymentMethod === "cod"
       ? [
-          `Комісія переказу (2%): ${money(fee)}`,
+          `Комісія переказу (2% + 20.00 ₴): ${money(fee)}`,
           `Разом без доставки: ${money(order.amount + fee)}`,
         ]
       : []),

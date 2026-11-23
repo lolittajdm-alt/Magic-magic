@@ -247,8 +247,8 @@ export function createWorker({ request = fetch } = {}) {
       quantity: JSON.parse(order.details).quantity,
       ...(order.status === "awaiting_payment_on_delivery"
         ? {
-            codFee: Math.round(order.amount * 0.02),
-            totalDue: order.amount + Math.round(order.amount * 0.02),
+            codFee: Math.round(order.amount * 0.02) + 2000,
+            totalDue: order.amount + (Math.round(order.amount * 0.02) + 2000),
           }
         : {}),
       ...(pending.has(order.status) && safePage(order.page_url)
