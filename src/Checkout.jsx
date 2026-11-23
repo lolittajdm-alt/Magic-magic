@@ -445,9 +445,7 @@ export default function Checkout({ apiAvailable = true }) {
             <Text style={s.productName}>Магнітні Шахи</Text>
             <Text style={s.hint}>Набір для гри · {quantity} шт.</Text>
             {!confirmed && (
-              <Text style={s.productPrice}>
-                {formatPrice(UNIT_PRICE)} / шт.
-              </Text>
+              <Text style={s.productPrice}>{formatPrice(UNIT_PRICE)}</Text>
             )}
           </View>
           {confirmed && (
@@ -457,7 +455,7 @@ export default function Checkout({ apiAvailable = true }) {
                 { marginLeft: "auto", textAlign: "right" },
               ]}
             >
-              {formatPrice(UNIT_PRICE)} / шт.
+              {formatPrice(UNIT_PRICE)}
             </Text>
           )}
           {!confirmed && (
