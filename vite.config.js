@@ -33,6 +33,8 @@ export default defineConfig(({ mode }) => {
         deny: [
           ".env",
           ".env.*",
+          "**/.dev.vars*",
+          "**/telegram/**",
           "**/.git/**",
           "**/server/**",
           "**/.data/**",

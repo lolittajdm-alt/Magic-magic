@@ -909,7 +909,7 @@ function App() {
               <X size={size(22)} />
             </Pressable>
             {contact ? (
-              <Checkout previewOnly={__STATIC_SITE__} />
+              <Checkout telegramOrder />
             ) : (
               <ScrollView
                 showsVerticalScrollIndicator={false}

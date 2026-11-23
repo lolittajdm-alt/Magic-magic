@@ -1,3 +1,4 @@
+import { buildTelegramOrder, telegramOrderUrl } from "./telegramOrder.js";
 import { assetUrl } from "./assetUrl.js";
 import React, { useEffect, useRef, useState } from "react";
 import { formatPhone } from "./phone.js";
@@ -219,7 +220,7 @@ function Field({ label, icon: Icon, ...props }) {
     </View>
   );
 }
-export default function Checkout({ previewOnly = false }) {
+export default function Checkout({ telegramOrder = false }) {
   const { width } = useWindowDimensions(),
     mobile = width < 600;
   const formScroll = useRef(null),
@@ -228,16 +229,18 @@ export default function Checkout({ previewOnly = false }) {
     paymentLock = useRef(false),
     sessionReady = useRef(null);
   const [paying, setPaying] = useState(false),
-    [paymentMethod, setPaymentMethod] = useState("online"),
+    [paymentMethod, setPaymentMethod] = useState(
+      telegramOrder ? "cod" : "online",
+    ),
     [confirmed, setConfirmed] = useState(null);
   useEffect(() => {
-    if (previewOnly) return;
+    if (telegramOrder) return;
     sessionReady.current = fetch("/api/payments/config")
       .then((response) => response.ok)
       .catch(() => false);
-  }, [previewOnly]);
+  }, [telegramOrder]);
   async function pay() {
-    if (previewOnly || paymentLock.current) return;
+    if (telegramOrder || paymentLock.current) return;
     paymentLock.current = true;
     setPaying(true);
     setError("");
@@ -311,7 +314,36 @@ export default function Checkout({ previewOnly = false }) {
     [warehouse, setWarehouse] = useState(null),
     [error, setError] = useState(""),
     [review, setReview] = useState(false),
-    [contactRequested, setContactRequested] = useState(false);
+    [contactRequested, setContactRequested] = useState(false),
+    [copyStatus, setCopyStatus] = useState("");
+  const draft =
+    telegramOrder && review
+      ? buildTelegramOrder(
+          {
+            first,
+            last,
+            phone,
+            quantity,
+            city,
+            warehouse,
+            contactRequested,
+          },
+          UNIT_PRICE,
+        )
+      : "";
+  useEffect(() => {
+    setCopyStatus("");
+  }, [draft]);
+  async function copyOrder() {
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopyStatus(
+        "Скопійовано. Вставте текст у чат продавця та натисніть «Надіслати».",
+      );
+    } catch {
+      setCopyStatus("Виділіть і скопіюйте текст замовлення вище вручну.");
+    }
+  }
   const selectCity = (item) => {
     setCity(item);
     setWarehouse(null);
@@ -334,14 +366,14 @@ export default function Checkout({ previewOnly = false }) {
     }
     if (!city?.name?.trim() || !warehouse?.name?.trim()) {
       setError(
-        previewOnly
+        telegramOrder
           ? "Вкажіть місто та номер або адресу відділення Нової пошти."
           : "Оберіть місто та відділення зі списків Нової пошти.",
       );
       return;
     }
     setError("");
-    if (previewOnly) {
+    if (telegramOrder) {
       setReview(true);
       formScroll.current?.scrollTo({ y: 0, animated: false });
       return;
@@ -365,25 +397,24 @@ export default function Checkout({ previewOnly = false }) {
         >
           {confirmed
             ? "Замовлення підтверджено"
-            : previewOnly && review
+            : telegramOrder && review
               ? "Перевірте замовлення"
               : "Ще крок до гри."}
         </Text>
         <Text style={s.subtitle}>
           {confirmed
             ? `№ ${confirmed.orderNumber} · Оплата при отриманні`
-            : previewOnly
+            : telegramOrder
               ? "Оберіть кількість, заповніть контакти та дані доставки."
               : "Залиште контакти, а ми підготуємо вашу гру до нових пригод."}
         </Text>
-        {previewOnly && (
+        {telegramOrder && (
           <View style={s.availabilityNotice}>
-            <Text style={s.availabilityTitle}>
-              Надсилання замовлень ще не доступне
-            </Text>
+            <Text style={s.availabilityTitle}>Замовлення через Telegram</Text>
             <Text style={s.hint}>
-              Можна заповнити форму та переглянути підсумок. Дані не
-              надсилаються, оплата не проводиться.
+              Перевірте дані та перейдіть у особистий чат продавця. Натисніть
+              «Надіслати» в Telegram — після цього продавець зможе підтвердити
+              замовлення. Оплата на сайті не проводиться.
             </Text>
           </View>
         )}
@@ -541,7 +572,7 @@ export default function Checkout({ previewOnly = false }) {
                 <View style={s.radioDot} />
               </View>
             </View>
-            {previewOnly ? (
+            {telegramOrder ? (
               <View style={{ gap: 16, marginBottom: 18 }}>
                 <Field
                   label="Місто або населений пункт"
@@ -561,7 +592,8 @@ export default function Checkout({ previewOnly = false }) {
                   maxLength={200}
                 />
                 <Text style={s.hint}>
-                  Вкажіть дані вручну. Пошук відділень поки недоступний.
+                  Вкажіть населений пункт і номер або повну адресу відділення.
+                  Продавець уточнить доставку в Telegram.
                 </Text>
               </View>
             ) : (
@@ -618,6 +650,48 @@ export default function Checkout({ previewOnly = false }) {
             </Pressable>
           </>
         )}
+        {telegramOrder && review && (
+          <View style={[s.availabilityNotice, { marginTop: 18 }]}>
+            <Text style={s.availabilityTitle}>Повідомлення для продавця</Text>
+            <Text style={s.hint}>
+              Одержувач: @chabaniuk_vladyslav. Якщо Telegram не підставить
+              текст, скопіюйте його тут і вставте в чат.
+            </Text>
+            <TextInput
+              accessibilityLabel="Текст замовлення для Telegram"
+              multiline
+              editable={false}
+              value={draft}
+              style={{
+                fontFamily: "Inter",
+                fontSize: 14,
+                lineHeight: 21,
+                minHeight: 210,
+                maxHeight: 300,
+                padding: 12,
+                borderRadius: 8,
+                backgroundColor: "#fffefa",
+                color: "#292731",
+              }}
+            />
+            <Pressable
+              role="button"
+              onPress={copyOrder}
+              style={[s.edit, { minHeight: target }]}
+            >
+              <Text
+                style={{ fontFamily: "Inter", color: "#477f17", fontSize: 15 }}
+              >
+                Скопіювати замовлення
+              </Text>
+            </Pressable>
+            {!!copyStatus && (
+              <Text role="status" style={s.hint}>
+                {copyStatus}
+              </Text>
+            )}
+          </View>
+        )}
         {!confirmed && (
           <View
             role="radiogroup"
@@ -628,7 +702,7 @@ export default function Checkout({ previewOnly = false }) {
               <Text style={s.step}>3</Text>
               <Text style={s.sectionTitle}>Спосіб оплати</Text>
             </View>
-            {["online", "cod"].map((method) => (
+            {(telegramOrder ? ["cod"] : ["online", "cod"]).map((method) => (
               <Pressable
                 key={method}
                 role="radio"
@@ -654,7 +728,7 @@ export default function Checkout({ previewOnly = false }) {
                     ].includes(event.key)
                   ) {
                     event.preventDefault();
-                    if (!paying)
+                    if (!paying && !telegramOrder)
                       setPaymentMethod(
                         event.key === " "
                           ? method
@@ -802,13 +876,21 @@ export default function Checkout({ previewOnly = false }) {
         ) : (
           <>
             <Pressable
-              role="button"
-              disabled={paying || (previewOnly && review)}
+              role={telegramOrder && review ? "link" : "button"}
+              href={
+                telegramOrder && review ? telegramOrderUrl(draft) : undefined
+              }
+              hrefAttrs={
+                telegramOrder && review
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : undefined
+              }
+              disabled={paying}
               accessibilityState={{
-                disabled: paying || (previewOnly && review),
+                disabled: paying,
                 busy: paying,
               }}
-              onPress={validate}
+              onPress={telegramOrder && review ? undefined : validate}
               style={({ hovered }) => [
                 s.submit,
                 {
@@ -816,7 +898,7 @@ export default function Checkout({ previewOnly = false }) {
                   paddingVertical: size(15),
                   paddingHorizontal: size(16),
                   gap: size(12),
-                  opacity: paying || (previewOnly && review) ? 0.65 : 1,
+                  opacity: paying ? 0.65 : 1,
                 },
                 hovered && { backgroundColor: "#477f17" },
               ]}
@@ -836,9 +918,9 @@ export default function Checkout({ previewOnly = false }) {
                       },
                     ]}
                   >
-                    {previewOnly
+                    {telegramOrder
                       ? review
-                        ? "Надсилання поки недоступне"
+                        ? "Перейти в Telegram"
                         : "Перевірити замовлення"
                       : paymentMethod === "cod"
                         ? "Підтвердити замовлення"
@@ -851,8 +933,8 @@ export default function Checkout({ previewOnly = false }) {
             <View style={s.privacy}>
               <ShieldCheck size={14} color="#8a9380" />
               <Text style={s.privacyText}>
-                {previewOnly
-                  ? "Попередній перегляд · Замовлення не надіслано"
+                {telegramOrder
+                  ? "Натисніть «Надіслати» в Telegram. Перехід у чат не надсилає замовлення."
                   : paymentMethod === "cod"
                     ? "Без передоплати · Оплата при отриманні"
                     : "Безпечна оплата через mono"}

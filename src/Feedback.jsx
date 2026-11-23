@@ -1,3 +1,4 @@
+import { TELEGRAM_SELLER } from "./telegramOrder.js";
 import { assetUrl } from "./assetUrl.js";
 import React from "react";
 import { View, Text, Pressable, Image, StyleSheet } from "react-native";
@@ -7,7 +8,7 @@ import { Mail, Phone } from "lucide-react";
 export const feedbackContacts = {
   email: "",
   phone: "",
-  telegram: "",
+  telegram: `https://t.me/${TELEGRAM_SELLER}`,
   viber: "",
 };
 

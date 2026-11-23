@@ -52,7 +52,7 @@ npm run build:pages
 npm run preview -- --mode pages
 ```
 
-Открыть http://127.0.0.1:4173/Magic-magic/. Режим `pages` задаёт базовый путь `/Magic-magic/`; изображения используют `assetUrl`, шрифты обрабатывает Vite. В этой статической версии доступна полная форма с предварительным просмотром заказа: контакты, ручной ввод доставки, количество и выбор оплаты. Отправка и оплата явно недоступны; данные остаются только в памяти страницы, серверные запросы не выполняются. Обычная локальная версия сохраняет форму заказа и серверные маршруты.
+Открыть http://127.0.0.1:4173/Magic-magic/. Режим `pages` задаёт базовый путь `/Magic-magic/`; изображения используют `assetUrl`, шрифты обрабатывает Vite. На сайте и в локальной версии форма готовит сообщение для личного Telegram продавца. Контакты и доставка вводятся вручную; оплата при получении согласуется с продавцом. Покупатель проверяет данные, переходит в Telegram и сам отправляет сообщение. Серверные запросы для оформления не выполняются.
 
 В репозиторий можно загружать исходники и публичные изображения. `.env.local`, `.data`, резервные копии и локальные снимки экрана исключены через `.gitignore`. Для настройки сервера скопируйте `.env.example` в `.env.local` и заполните значения локально.
 
@@ -70,8 +70,18 @@ Server-only `.env.local` settings:
 
 `npm run dev` and `npm run preview` provide the server routes. Static hosting of `dist` alone cannot process orders or payments. Production needs a persistent Node server, durable private storage, HTTPS and the configured origin.
 
-Payment endpoints: `GET /api/payments/config`, `POST /api/payments/create`, `POST /api/payments/cod`, `GET /api/payments/status?orderId=...`. An HttpOnly session cookie restricts status access. Creation accepts quantity and delivery/contact details, recalculates the amount server-side and persists the order in ignored `.data/orders/` before contacting mono. Keep this directory private and back it up: it is the seller's local order record. No shipping label, seller notification or fulfillment automation is created.
+Payment endpoints: `GET /api/payments/config`, `POST /api/payments/create`, `POST /api/payments/cod`, `GET /api/payments/status?orderId=...`. An HttpOnly session cookie restricts status access. Creation accepts quantity and delivery/contact details, recalculates the amount server-side and persists the order in ignored `.data/orders/` before contacting mono. Keep this directory private and back it up: it is the seller's local order record. No shipping label or fulfillment automation is created. The current storefront uses the manual Telegram flow described below.
 
 Repeated requests with the same request ID reuse the invoice. A timeout after contacting mono is treated as ambiguous and cannot silently create another invoice with that ID. The payment return page queries mono to confirm the invoice ID, currency, amount and status; a redirect alone never marks an order paid. No webhook is configured on localhost. Status refresh currently occurs when the buyer returns to the result page or manually requests another check; orders paid without a return must be reconciled in the mono merchant account.
 
 Checks: `node --test server/payments.test.js` and `npm run build`. Tests use a mocked bank and do not charge cards.
+
+
+
+## Заказ сообщением в личный Telegram
+
+Текущая витрина использует `<Checkout telegramOrder />`: после проверки формы кнопка «Перейти в Telegram» открывает `https://t.me/chabaniuk_vladyslav?text=…` с подготовленным текстом заказа. Покупатель самостоятельно нажимает «Надіслати» в Telegram, продавец подтверждает заказ в переписке. Открытие ссылки не считается отправкой или оплатой; сайт не может проверить доставку сообщения. Оплата онлайн в этом режиме не предлагается.
+
+На шаге проверки доступны текст заказа и кнопка копирования; если буфер обмена недоступен, текст можно выделить вручную. Форма сохраняется в открытой вкладке при переходе в Telegram, но не записывается в постоянное хранилище. Контакты и доставка попадают в ссылку только после подготовки заказа; сообщение адресовано личному аккаунту продавца, не боту. Автоматическая отправка через Bot API отключена. Секреты для этого режима не нужны.
+
+`src/telegramOrder.js` формирует текст, сумму и ссылку; `src/telegramOrder.test.js` проверяет получателя, кодирование специальных символов, доставку и суммы. Старые серверные маршруты оплаты остаются в проекте, но текущая форма их не вызывает.
