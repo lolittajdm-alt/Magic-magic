@@ -135,6 +135,16 @@ test("document lock restores original scroll and cleans viewport listeners", () 
   tick();
   tick();
   assert.equal(scroller.scrollTop, 354);
+  field.dataset = { deliverySearch: "true" };
+  scroller.scrollTop = 0;
+  doc.listeners.get("focusin")();
+  tick();
+  tick();
+  assert.equal(
+    scroller.scrollTop,
+    473,
+    "delivery search reserves room for suggestions",
+  );
   dispose();
   assert.deepEqual(restored, [0, 520]);
   assert.equal(body.style.position, "");

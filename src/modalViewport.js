@@ -86,8 +86,15 @@ export function installModalViewport(win, doc) {
           const box = input.getBoundingClientRect(),
             area = scroller.getBoundingClientRect();
           // Keep the label and space for delivery suggestions visible above the keyboard.
-          if (box.bottom > area.bottom - 24)
-            scroller.scrollTop += box.bottom - area.bottom + 24;
+          const bottomRoom =
+            input.dataset?.deliverySearch === "true"
+              ? Math.min(
+                  180,
+                  Math.max(80, Math.round((area.bottom - area.top) * 0.45)),
+                )
+              : 24;
+          if (box.bottom > area.bottom - bottomRoom)
+            scroller.scrollTop += box.bottom - area.bottom + bottomRoom;
           else if (box.top < area.top + 32)
             scroller.scrollTop -= area.top + 32 - box.top;
         });

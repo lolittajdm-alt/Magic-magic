@@ -111,6 +111,7 @@ function SearchField({
       >
         <MapPin size={17} color={disabled ? "#b1b6aa" : "#8b9282"} />
         <TextInput
+          dataSet={{ deliverySearch: "true" }}
           accessibilityLabel={label}
           placeholder={placeholder}
           placeholderTextColor="#989e91"
