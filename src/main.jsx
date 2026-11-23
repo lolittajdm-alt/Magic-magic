@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import {
   ArrowUpRight,
+  ArrowUp,
   ArrowRight,
   ArrowLeft,
   Play,
@@ -333,8 +334,11 @@ function App() {
                 },
               ]}
             >
-              Твори.<Text>{"\n"}Відкривай.</Text>
-              <Text style={{ color: green }}>{"\n"}Досліджуй.</Text>
+              Грай.
+              <Text style={{ fontSize: "0.5em", letterSpacing: -0.7 }}>
+                {"\n"}Притримуйся стратегії.
+              </Text>
+              <Text style={{ color: green }}>{"\n"}Перемагай.</Text>
             </Text>
             <Text
               style={[
@@ -350,8 +354,10 @@ function App() {
                 },
               ]}
             >
-              Портфоліо, створене з духом творчості,{mobile ? "\n" : " "}
-              дослідження та будівництва нових світів.
+              Магнітні Шахи — це захоплива логічна гра з магнітними кульками,
+              яка тренує мислення, уважність і стратегічні навички. Гра виконана
+              з натурального дерева та підходить як для дітей, так і для
+              дорослих.
             </Text>
             <View
               style={[
@@ -388,16 +394,6 @@ function App() {
                     }}
                   >
                     Відео демонстрація
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: "Inter",
-                      fontSize: size(11),
-                      color: "#777",
-                      marginTop: 3,
-                    }}
-                  >
-                    Незабаром
                   </Text>
                 </View>
               </Pressable>
@@ -476,14 +472,29 @@ function App() {
           ]}
         >
           <View
+            nativeID="about-collage"
+            dataSet={{ expanded: aboutMore }}
             style={{
               width: tablet ? "100%" : "49%",
+              alignSelf: aboutMore && !tablet ? "stretch" : undefined,
               paddingBottom: 15,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <View style={{ width: "100%", position: "relative" }}>
+            {aboutMore && (
+              <div className="about-photo-pair about-photo-pair-top">
+                <img
+                  src={projects[0].image}
+                  alt="Дерев’яне поле з магнітними кульками"
+                />
+                <img
+                  src={projects[1].image}
+                  alt="Розташування магнітів під час гри"
+                />
+              </div>
+            )}
+            <View style={{ width: "100%", position: "relative", zIndex: 1 }}>
               <Crop
                 rect={[94, 580, 435, 254]}
                 label="Затишний воксельний будинок та кріпер"
@@ -503,6 +514,18 @@ function App() {
                 }}
               />
             </View>
+            {aboutMore && (
+              <div className="about-photo-pair about-photo-pair-bottom">
+                <img
+                  src={projects[2].image}
+                  alt="Магнітні кульки притягуються одна до одної"
+                />
+                <img
+                  src={projects[3].image}
+                  alt="Останні магніти перед перемогою"
+                />
+              </div>
+            )}
           </View>
           <View
             style={[
@@ -781,7 +804,7 @@ function App() {
           <View style={{ paddingLeft: mobile ? 30 : 64, paddingTop: 40 }}>
             <Text style={s.quoteMark}>“</Text>
             <Text style={[s.quoteText, { fontSize: mobile ? 25 : 29 }]}>
-              Малі ідеї{"\n"}призводять{"\n"}до великих світів.
+              Маленькі партії{"\n"}приведуть{"\n"}до великих перемог!
               <Text style={{ color: green }}> —</Text>
             </Text>
           </View>
@@ -866,16 +889,18 @@ function App() {
         <Feedback mobile={mobile} tablet={tablet} />
         <View style={[s.footer, { paddingHorizontal: mobile ? 28 : 60 }]}>
           <Text style={s.footerText}>
-            © {new Date().getFullYear()} Blockfolio
+            © {new Date().getFullYear()} Магнітні Шахи
           </Text>
-          <Text style={s.footerText}>Створено з уявою. Блок за блоком.</Text>
+          <Text style={s.footerText}>
+            Створено з любов’ю. Для дорослих та дітей.
+          </Text>
           <Pressable
             role="button"
             onPress={() => go("home")}
             accessibilityLabel="Повернутися нагору"
             style={circleStyle}
           >
-            <ArrowUpRight size={size(20)} color={green} />
+            <ArrowUp size={size(20)} color={green} />
           </Pressable>
         </View>
       </View>
