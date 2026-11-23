@@ -369,34 +369,59 @@ function App() {
             <View
               style={[
                 s.heroActions,
-                { gap: mobile ? 14 : size(24), flexWrap: "wrap" },
+                {
+                  gap: mobile ? (width < 360 ? 8 : 12) : size(24),
+                  flexWrap: mobile ? "nowrap" : "wrap",
+                },
               ]}
             >
-              <Button onPress={() => go("projects")}>Детальніше</Button>
+              <Button
+                onPress={() => go("projects")}
+                icon={width >= 360}
+                style={
+                  mobile
+                    ? { paddingHorizontal: width < 360 ? 8 : 14, gap: 8 }
+                    : undefined
+                }
+              >
+                Детальніше
+              </Button>
               <Pressable
                 role="button"
                 onPress={() => {
                   setActiveNote({
-                    title: "Reel ще створюється",
-                    body: "Нові світи вже набувають форми. А поки відео готується — дослідіть добірку проєктів.",
+                    title: "Відеоогляд гри",
                     reel: true,
                   });
                 }}
-                style={[s.reel, { minHeight: target, gap: size(10) }]}
+                style={[
+                  s.reel,
+                  {
+                    minHeight: target,
+                    gap: mobile ? (width < 360 ? 6 : 8) : size(10),
+                    flexShrink: 1,
+                    minWidth: 0,
+                  },
+                ]}
               >
                 <View
                   style={[
                     s.play,
-                    { width: target, height: target, borderRadius: target / 2 },
+                    {
+                      width: target,
+                      height: target,
+                      borderRadius: target / 2,
+                      flexShrink: 0,
+                    },
                   ]}
                 >
                   <Play size={size(16)} fill={ink} color={ink} />
                 </View>
-                <View>
+                <View style={{ flexShrink: 1, minWidth: 0 }}>
                   <Text
                     style={{
                       fontFamily: "Inter",
-                      fontSize: size(15),
+                      fontSize: mobile ? (width < 360 ? 12 : 14) : size(15),
                       color: ink,
                     }}
                   >
@@ -1081,15 +1106,36 @@ function App() {
                   )}
                   {activeNote && (
                     <>
-                      <Text style={[s.eyebrow, { marginTop: 18 }]}>
-                        {activeNote.reel ? "У ПРОЦЕСІ" : "ЩОДЕННИК СТРАТЕГА"}
-                      </Text>
+                      {!activeNote.reel && (
+                        <Text style={[s.eyebrow, { marginTop: 18 }]}>
+                          ЩОДЕННИК СТРАТЕГА
+                        </Text>
+                      )}
                       <Text role="heading" style={s.modalTitle}>
                         {activeNote.title}
                       </Text>
-                      <Text style={[s.body, { lineHeight: 29 }]}>
-                        {activeNote.body}
-                      </Text>
+                      {activeNote.reel ? (
+                        <div
+                          className="youtube-preview"
+                          role="img"
+                          aria-label="Місце для відеоогляду на YouTube. Відео ще не додано."
+                        >
+                          <div
+                            className="youtube-preview-logo"
+                            aria-hidden="true"
+                          >
+                            <Play size={28} fill="white" color="white" />
+                          </div>
+                          <span className="youtube-preview-brand">YouTube</span>
+                          <span className="youtube-preview-caption">
+                            Відеоогляд буде додано
+                          </span>
+                        </div>
+                      ) : (
+                        <Text style={[s.body, { lineHeight: 29 }]}>
+                          {activeNote.body}
+                        </Text>
+                      )}
                       {activeNote.reel && (
                         <Button
                           style={{ marginTop: 25, alignSelf: "flex-start" }}
