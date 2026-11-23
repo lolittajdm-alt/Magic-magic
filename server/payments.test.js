@@ -70,7 +70,7 @@ test("server sets price, persists delivery, deduplicates concurrent/restarted re
       creates++;
       const b = JSON.parse(options.body);
       amount = b.amount;
-      assert.equal(b.merchantPaymInfo.basketOrder[0].sum, 1000);
+      assert.equal(b.merchantPaymInfo.basketOrder[0].sum, 53500);
       assert.equal(
         b.merchantPaymInfo.basketOrder[0].icon,
         "https://lolittajdm-alt.github.io/Magic-magic/assets/checkout-product.webp",
@@ -96,7 +96,7 @@ test("server sets price, persists delivery, deduplicates concurrent/restarted re
   assert.equal(results[0].code, 200);
   assert.equal(results[1].data.orderId, results[0].data.orderId);
   assert.equal(creates, 1);
-  assert.equal(amount, 2000);
+  assert.equal(amount, 107000);
   h.restart();
   assert.equal((await h.call("create", body)).code, 200);
   assert.equal(creates, 1);
@@ -209,9 +209,9 @@ test("COD persists unpaid order and server-calculated fee, deduplicates retries 
   assert.deepEqual(results[0].data, results[1].data);
   const result = results[0].data;
   assert.equal(result.status, "awaiting_payment_on_delivery");
-  assert.equal(result.amount, 2000);
-  assert.equal(result.codFee, 40);
-  assert.equal(result.totalDue, 2040);
+  assert.equal(result.amount, 107000);
+  assert.equal(result.codFee, 2140);
+  assert.equal(result.totalDue, 109140);
   assert.match(result.orderNumber, /^MC-[A-F0-9]{12}$/);
   h.restart();
   assert.deepEqual((await h.call("cod", body)).data, result);

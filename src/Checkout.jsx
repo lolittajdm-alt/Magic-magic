@@ -33,7 +33,7 @@ import {
   Pencil,
 } from "lucide-react";
 
-const UNIT_PRICE = 10;
+const UNIT_PRICE = 535;
 const formatPrice = (amount) => `${amount.toFixed(2)} ₴`;
 
 function SearchField({

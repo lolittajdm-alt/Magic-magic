@@ -507,10 +507,11 @@ function App() {
               nativeID="about-centerpiece"
               style={{ width: "100%", position: "relative", zIndex: 1 }}
             >
-              <Crop
-                rect={[94, 580, 435, 254]}
-                label="Затишний воксельний будинок"
-                style={{ width: "100%" }}
+              <Image
+                source={{ uri: assetUrl("/assets/about-game-32.webp") }}
+                accessibilityLabel="Затишний будиночок і картка 32 магнітні кульки"
+                resizeMode="contain"
+                style={{ width: "100%", aspectRatio: 435 / 254 }}
               />
               <Image
                 source={{ uri: assetUrl("/assets/hero-squirrel.webp") }}
@@ -519,23 +520,12 @@ function App() {
                 resizeMode="contain"
                 style={{
                   position: "absolute",
-                  left: "-3%",
-                  bottom: "11%",
+                  left: "3%",
+                  bottom: "17%",
                   width: "58%",
                   height: "105%",
                 }}
               />
-              <div
-                className="about-magnet-badge"
-                aria-label="32 магнітні кульки"
-              >
-                <strong aria-hidden="true">32</strong>
-                <span aria-hidden="true">
-                  МАГНІТНІ
-                  <br />
-                  КУЛЬКИ
-                </span>
-              </div>
             </View>
             <div
               className="about-photo-pair about-photo-pair-bottom"
