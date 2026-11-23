@@ -9,6 +9,8 @@ export default defineConfig(({ mode }) => {
     origin: env.APP_ORIGIN || "http://127.0.0.1:5173",
   });
   return {
+    base: mode === "pages" ? "/Magic-magic/" : "/",
+    define: { __STATIC_SITE__: mode === "pages" },
     resolve: { alias: { "react-native": "react-native-web" } },
     plugins: [
       {

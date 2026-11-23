@@ -1,3 +1,4 @@
+import { assetUrl } from "./assetUrl.js";
 import React, { useEffect, useRef, useState } from "react";
 import { formatPhone } from "./phone.js";
 import { useControlScale } from "./useControlScale.js";
@@ -361,7 +362,7 @@ export default function Checkout() {
         </Text>
         <View style={[s.product, mobile && { flexWrap: "wrap" }]}>
           <Image
-            source={{ uri: "/assets/checkout-product.webp" }}
+            source={{ uri: assetUrl("/assets/checkout-product.webp") }}
             accessibilityLabel="Магнітні Шахи — набір для гри"
             resizeMode="cover"
             style={s.productImage}
@@ -499,7 +500,7 @@ export default function Checkout() {
             <View style={s.carrier}>
               <View style={s.carrierIcon}>
                 <Image
-                  source={{ uri: "/assets/nova-poshta-mark.svg" }}
+                  source={{ uri: assetUrl("/assets/nova-poshta-mark.svg") }}
                   accessibilityLabel="Знак Нової пошти — Н зі стрілками"
                   resizeMode="contain"
                   style={{ width: 25, height: 25 }}
@@ -630,19 +631,23 @@ export default function Checkout() {
                   {method === "online" ? (
                     <View style={[s.paymentWallets, mobile && { gap: 12 }]}>
                       <Image
-                        source={{ uri: "/assets/plata-by-mono.svg" }}
+                        source={{ uri: assetUrl("/assets/plata-by-mono.svg") }}
                         accessibilityLabel="plata by mono"
                         resizeMode="contain"
                         style={{ width: mobile ? 90 : 112, height: 27 }}
                       />
                       <Image
-                        source={{ uri: "/assets/apple-pay-plain.svg?v=2" }}
+                        source={{
+                          uri: assetUrl("/assets/apple-pay-plain.svg?v=2"),
+                        }}
                         accessibilityLabel="Apple Pay"
                         resizeMode="contain"
                         style={{ width: mobile ? 48 : 60, height: 27 }}
                       />
                       <Image
-                        source={{ uri: "/assets/google-pay-plain.svg" }}
+                        source={{
+                          uri: assetUrl("/assets/google-pay-plain.svg"),
+                        }}
                         accessibilityLabel="Google Pay"
                         resizeMode="contain"
                         style={{ width: mobile ? 52 : 65, height: 27 }}

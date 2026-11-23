@@ -164,7 +164,7 @@ export default function PaymentResult({ orderId }) {
         )}
         <Pressable
           role="link"
-          href="/"
+          href={import.meta.env.BASE_URL}
           style={{ padding: 12, alignItems: "center" }}
         >
           <Text style={{ fontFamily: "Inter", fontSize: 14, color: "#57951f" }}>

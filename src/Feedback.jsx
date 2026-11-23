@@ -1,3 +1,4 @@
+import { assetUrl } from "./assetUrl.js";
 import React from "react";
 import { View, Text, Pressable, Image, StyleSheet } from "react-native";
 import { Mail, Phone } from "lucide-react";
@@ -31,7 +32,7 @@ export default function Feedback({ mobile, tablet }) {
       name: "Telegram",
       value: "Написати повідомлення",
       href: telegram || null,
-      image: "/assets/telegram-contact.svg",
+      image: assetUrl("/assets/telegram-contact.svg"),
       color: "#229ed9",
     },
     {
@@ -40,7 +41,7 @@ export default function Feedback({ mobile, tablet }) {
       href: viber
         ? `viber://chat?number=${encodeURIComponent(viber.replace(/\D/g, ""))}`
         : null,
-      image: "/assets/viber-contact.svg",
+      image: assetUrl("/assets/viber-contact.svg"),
       color: "#7360f2",
     },
   ];

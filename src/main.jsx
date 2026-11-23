@@ -1,3 +1,4 @@
+import { assetUrl } from "./assetUrl.js";
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -32,7 +33,7 @@ const projects = [
   {
     title: "Розподіліть магніти",
     category: "КРОК 1",
-    image: "/assets/rule-1-enhanced.webp",
+    image: assetUrl("/assets/rule-1-enhanced.webp"),
     summary: "Розділіть магніти порівну між гравцями.",
     description:
       "Перед початком гри розподіліть усі магнітні кульки порівну. Для гри вдвох із набором із 32 кульок кожен отримує по 16. Ігрове поле на початку порожнє.",
@@ -41,7 +42,7 @@ const projects = [
   {
     title: "Ставте по черзі",
     category: "КРОК 2",
-    image: "/assets/rule-2-enhanced.webp",
+    image: assetUrl("/assets/rule-2-enhanced.webp"),
     summary: "По черзі ставте по одному магніту у вільну комірку.",
     description:
       "Гравці ходять по черзі: за один хід поставте одну свою магнітну кульку в будь-яку вільну комірку. Обирайте місце уважно, щоб магніти не притягнулися один до одного.",
@@ -50,7 +51,7 @@ const projects = [
   {
     title: "Уникайте злипання",
     category: "КРОК 3",
-    image: "/assets/rule-3-enhanced.webp",
+    image: assetUrl("/assets/rule-3-enhanced.webp"),
     summary: "Магніти злиплися під час вашого ходу? Заберіть їх собі.",
     description:
       "Якщо під час вашого ходу магніти злиплися, заберіть усі злиплі кульки собі. Тепер їх теж потрібно буде розмістити на полі. Далі хід переходить до наступного гравця.",
@@ -59,7 +60,7 @@ const projects = [
   {
     title: "Перемагайте!",
     category: "КРОК 4",
-    image: "/assets/rule-4-enhanced.webp",
+    image: assetUrl("/assets/rule-4-enhanced.webp"),
     summary: "Першим позбудьтеся всіх своїх магнітів — і ви перемогли!",
     description:
       "Перемагає той, хто першим позбудеться всіх своїх магнітів. Ставте кульки обережно, продумуйте кожен хід і стежте за полем до самого кінця партії.",
@@ -79,7 +80,7 @@ function Crop({ rect, style, label }) {
     >
       <Image
         accessible={false}
-        source={{ uri: "/assets/reference.webp" }}
+        source={{ uri: assetUrl("/assets/reference.webp") }}
         style={{
           position: "absolute",
           width: 1024 * scale,
@@ -246,7 +247,7 @@ function App() {
           style={[s.hero, { minHeight: mobile ? 1100 : tablet ? 950 : 1000 }]}
         >
           <Image
-            source={{ uri: "/assets/hero-meadow.webp" }}
+            source={{ uri: assetUrl("/assets/hero-meadow.webp") }}
             style={[
               s.heroImage,
               tablet && !mobile && { width: 1160, right: -40 },
@@ -266,7 +267,7 @@ function App() {
             ]}
           />
           <Image
-            source={{ uri: "/assets/magnetic-game-box-square.webp" }}
+            source={{ uri: assetUrl("/assets/magnetic-game-box-square.webp") }}
             accessibilityLabel="Коробка гри Магнітний бій"
             pointerEvents="none"
             resizeMode="contain"
@@ -280,7 +281,7 @@ function App() {
             }}
           />
           <Image
-            source={{ uri: "/assets/hero-magnetic-board.webp" }}
+            source={{ uri: assetUrl("/assets/hero-magnetic-board.webp") }}
             accessibilityLabel="Ігрова дошка з магнітними кульками, нахилена до гравця"
             pointerEvents="none"
             resizeMode="contain"
@@ -294,7 +295,7 @@ function App() {
             }}
           />
           <Image
-            source={{ uri: "/assets/hero-bird.webp" }}
+            source={{ uri: assetUrl("/assets/hero-bird.webp") }}
             accessibilityLabel="Синьо-жовта пташка в польоті"
             pointerEvents="none"
             resizeMode="contain"
@@ -323,7 +324,7 @@ function App() {
               ]}
             >
               <Image
-                source={{ uri: "/favicon.svg" }}
+                source={{ uri: assetUrl("/favicon.svg") }}
                 style={{
                   width: mobile ? 26 : size(32),
                   height: mobile ? 29 : size(35),
@@ -471,7 +472,7 @@ function App() {
                 style={{ width: "100%" }}
               />
               <Image
-                source={{ uri: "/assets/hero-squirrel.webp" }}
+                source={{ uri: assetUrl("/assets/hero-squirrel.webp") }}
                 accessibilityLabel="Білочка з табличкою ЕКО Матеріали на тлі будиночка"
                 pointerEvents="none"
                 resizeMode="contain"
@@ -908,7 +909,19 @@ function App() {
               <X size={size(22)} />
             </Pressable>
             {contact ? (
-              <Checkout />
+              __STATIC_SITE__ ? (
+                <View style={{ padding: 38, paddingTop: 64, gap: 18 }}>
+                  <Text role="heading" style={s.modalTitle}>
+                    Замовлення незабаром
+                  </Text>
+                  <Text style={s.body}>
+                    Онлайн-замовлення поки недоступне. Ми готуємо можливість
+                    оформити доставку та оплату. Дякуємо за інтерес до гри!
+                  </Text>
+                </View>
+              ) : (
+                <Checkout />
+              )
             ) : (
               <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -1259,5 +1272,9 @@ const paymentOrderId = new URLSearchParams(window.location.search).get(
   "payment",
 );
 createRoot(document.getElementById("root")).render(
-  paymentOrderId ? <PaymentResult orderId={paymentOrderId} /> : <App />,
+  !__STATIC_SITE__ && paymentOrderId ? (
+    <PaymentResult orderId={paymentOrderId} />
+  ) : (
+    <App />
+  ),
 );
