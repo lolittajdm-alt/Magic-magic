@@ -40,6 +40,10 @@ button,
   outline: 3px solid #609b35 !important;
   outline-offset: 4px;
 }
+#dialog-close:focus-visible {
+  outline: none !important;
+  color: #477f17;
+}
 ::selection {
   background: #cce8a7;
 }

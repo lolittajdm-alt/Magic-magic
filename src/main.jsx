@@ -1021,18 +1021,11 @@ function App() {
                 )}
                 <Pressable
                   ref={closeButton}
+                  nativeID="dialog-close"
                   role="button"
                   onPress={close}
                   accessibilityLabel="Закрити"
-                  style={[
-                    s.close,
-                    { width: target, height: target, borderRadius: target / 2 },
-                    contact && {
-                      borderRadius: 4,
-                      backgroundColor: "transparent",
-                      boxShadow: "none",
-                    },
-                  ]}
+                  style={[s.close, { width: target, height: target }]}
                 >
                   <X size={size(22)} />
                 </Pressable>
@@ -1382,11 +1375,10 @@ const s = StyleSheet.create({
     width: 38,
     height: 38,
     zIndex: 3,
-    borderRadius: 20,
-    backgroundColor: "#fffefa",
+    backgroundColor: "transparent",
+    color: ink,
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 2px 12px #0001",
   },
   modalTitle: {
     fontFamily: "Inter",
