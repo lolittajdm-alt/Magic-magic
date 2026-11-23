@@ -5,10 +5,16 @@ html {
   background-color: #82c5f6;
   background-image:
     linear-gradient(180deg, #82c5f6 0%, #82c5f6 12%, #82c5f600 100%),
+    linear-gradient(0deg, #82c5f6 0%, #82c5f6 12%, #82c5f600 100%),
     url("./sky-clouds.svg"),
     linear-gradient(180deg, #82c5f6 0%, #b5dffa 58%, #e7f5ff 100%);
-  background-position: center top;
+  background-position:
+    center top,
+    center bottom,
+    center top,
+    center top;
   background-size:
+    100% 160px,
     100% 160px,
     cover,
     cover;
@@ -66,9 +72,10 @@ html[data-modal-open="true"] {
   html {
     background-size:
       100% 160px,
+      100% 160px,
       100% auto,
       auto;
-    background-repeat: no-repeat, repeat-y, no-repeat;
+    background-repeat: no-repeat, no-repeat, repeat-y, no-repeat;
     background-attachment: scroll;
   }
 }
