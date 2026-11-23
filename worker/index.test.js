@@ -99,7 +99,7 @@ async function fixture() {
       if (url.includes("invoice/status"))
         return Response.json({
           invoiceId: "invoice-1",
-          amount: badAmount ? 1 : 107000,
+          amount: badAmount ? 1 : 2000,
           ccy: 980,
           status: bankStatus,
           modifiedDate:
@@ -174,9 +174,9 @@ test("COD persists one order, sends Telegram automatically, and rejects changed 
   assert.equal(response.status, 200);
   const order = await response.json();
   await f.drain();
-  assert.equal(order.amount, 107000);
-  assert.equal(order.codFee, 2140);
-  assert.equal(order.totalDue, 109140);
+  assert.equal(order.amount, 2000);
+  assert.equal(order.codFee, 40);
+  assert.equal(order.totalDue, 2040);
   assert.equal((await submit(details)).status, 200);
   await f.drain();
   assert.equal((await submit({ ...details, quantity: 3 })).status, 409);
@@ -186,11 +186,11 @@ test("COD persists one order, sends Telegram automatically, and rejects changed 
   assert.match(JSON.parse(f.calls[0].init.body).text, /ще не оплачено/);
   assert.match(
     JSON.parse(f.calls[0].init.body).text,
-    /Комісія переказу \(2%\): 21\.40 грн/,
+    /Комісія переказу \(2%\): 0\.40 грн/,
   );
   assert.match(
     JSON.parse(f.calls[0].init.body).text,
-    /Разом без доставки: 1091\.40 грн/,
+    /Разом без доставки: 20\.40 грн/,
   );
 });
 test("failed Telegram delivery remains in durable outbox and is retried", async () => {
@@ -283,7 +283,7 @@ test("mono invoice uses server price, correct return path and webhook, repeated 
   const invoices = f.calls.filter((c) => c.url.endsWith("invoice/create"));
   assert.equal(invoices.length, 1);
   const data = JSON.parse(invoices[0].init.body);
-  assert.equal(data.amount, 107000);
+  assert.equal(data.amount, 2000);
   assert.equal(
     data.merchantPaymInfo.basketOrder[0].icon,
     "https://lolittajdm-alt.github.io/Magic-magic/assets/checkout-product.webp",
