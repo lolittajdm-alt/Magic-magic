@@ -415,12 +415,35 @@ function App() {
               right: mobile ? 8 : 12,
               top: mobile ? undefined : 100,
               marginTop: mobile ? 20 : 0,
-              marginBottom: mobile ? 24 : 0,
+              marginBottom: mobile ? 72 : 0,
               width: mobile ? "82%" : "46%",
               maxWidth: 510,
               aspectRatio: 1,
             }}
           />
+          <div className="hero-magnets" aria-hidden="true">
+            {[
+              [8, 25, 24],
+              [18, 69, 17],
+              [33, 12, 27],
+              [36, 40, 20],
+              [55, 48, 16],
+              [68, 14, 26],
+              [72, 32, 22],
+              [86, 65, 18],
+              [95, 21, 15],
+            ].map(([left, bottom, diameter], index) => (
+              <span
+                key={index}
+                className="hero-magnet"
+                style={{
+                  left: `${left}%`,
+                  bottom: `${bottom}%`,
+                  "--magnet-size": `${diameter}px`,
+                }}
+              />
+            ))}
+          </div>
           <View style={s.heroBottom} />
         </View>
         <View
