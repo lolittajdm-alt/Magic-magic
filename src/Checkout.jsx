@@ -1,6 +1,12 @@
 import { apiFetch, loadShopConfig } from "./api.js";
 import { assetUrl } from "./assetUrl.js";
 import React, { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import {
+  advanceCheckoutField,
+  focusNextField,
+  registerFieldAdvance,
+} from "./checkoutFocus.js";
 import { formatPhone } from "./phone.js";
 import { useControlScale } from "./useControlScale.js";
 import {
@@ -47,6 +53,7 @@ function SearchField({
     [error, setError] = useState(""),
     [retry, setRetry] = useState(0);
   const generation = useRef(0);
+  const inputRef = useRef(null);
   useEffect(() => {
     setQuery(value?.name || "");
     setItems([]);
@@ -92,12 +99,27 @@ function SearchField({
     };
   }, [query, open, endpoint, disabled, retry]);
   const choose = (item) => {
-    onSelect(item);
-    setQuery(item.name);
-    setOpen(false);
-    setItems([]);
-    document.activeElement?.blur?.();
+    flushSync(() => {
+      onSelect(item);
+      setQuery(item.name);
+      setOpen(false);
+      setItems([]);
+    });
+    // Keep the keyboard session alive while enabling/focusing the next field on iOS.
+    focusNextField(inputRef.current);
   };
+  useEffect(() =>
+    registerFieldAdvance(inputRef.current, () => {
+      if (value) return focusNextField(inputRef.current);
+      const exact = items.filter(
+        (item) =>
+          item.name.toLocaleLowerCase() === query.trim().toLocaleLowerCase(),
+      );
+      if (!loading && !error && exact.length === 1) return choose(exact[0]);
+      setOpen(true);
+      inputRef.current?.focus({ preventScroll: true });
+    }),
+  );
   return (
     <View style={{ marginBottom: 18 }}>
       <Text style={s.label}>{label}</Text>
@@ -111,6 +133,7 @@ function SearchField({
       >
         <MapPin size={17} color={disabled ? "#b1b6aa" : "#8b9282"} />
         <TextInput
+          ref={inputRef}
           dataSet={{ deliverySearch: "true" }}
           accessibilityLabel={label}
           placeholder={placeholder}
@@ -120,7 +143,9 @@ function SearchField({
           autoComplete="off"
           autoCorrect={false}
           spellCheck={false}
-          returnKeyType="done"
+          returnKeyType={endpoint.includes("warehouses") ? "done" : "next"}
+          blurOnSubmit={false}
+          onSubmitEditing={() => advanceCheckoutField(inputRef.current)}
           onFocus={() => setOpen(true)}
           onChangeText={(text) => {
             setQuery(text);
@@ -218,6 +243,9 @@ function Field({ label, icon: Icon, ...props }) {
         {Icon && <Icon size={17} color="#8b9282" />}
         <TextInput
           accessibilityLabel={label}
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={(event) => advanceCheckoutField(event.target)}
           placeholderTextColor="#989e91"
           style={[s.searchInput, { fontSize: 16 }]}
           {...props}

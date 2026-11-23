@@ -72,6 +72,8 @@ export function installModalViewport(win, doc) {
         baselineHeight,
       });
       root.dataset.inputActive = field ? "true" : "false";
+      root.dataset.checkoutOpen =
+        doc.getElementById("site-overlay")?.dataset?.checkout || "false";
       root.dataset.keyboardOpen = state.keyboardOpen ? "true" : "false";
       root.style.setProperty("--visible-height", `${state.height}px`);
       root.style.setProperty("--visible-top", `${state.top}px`);
@@ -123,6 +125,7 @@ export function installModalViewport(win, doc) {
     Object.assign(root.style, oldRoot);
     delete root.dataset.modalOpen;
     delete root.dataset.inputActive;
+    delete root.dataset.checkoutOpen;
     delete root.dataset.keyboardOpen;
     root.style.removeProperty("--visible-height");
     root.style.removeProperty("--visible-top");

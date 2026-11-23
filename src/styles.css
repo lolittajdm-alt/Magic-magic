@@ -149,6 +149,10 @@ html[data-modal-open="true"] {
   display: none;
 }
 #keyboard-done {
+  border: 0;
+  background: transparent;
+  padding: 0 8px;
+  cursor: pointer;
   display: none;
   min-width: 64px;
   min-height: 44px;
@@ -176,6 +180,16 @@ html[data-modal-open="true"] {
   }
 }
 @media (max-width: 699px) {
+  html[data-checkout-open="true"],
+  html[data-checkout-open="true"] body {
+    background: #fffefa !important;
+  }
+  #site-overlay[data-checkout="true"] {
+    min-height: 100lvh;
+    background: #fffefa !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
   html {
     scroll-padding-top: 16px;
   }
@@ -229,6 +243,9 @@ html[data-modal-open="true"] {
   #checkout-scroll {
     scroll-behavior: auto;
     scroll-padding-block: 36px;
+  }
+  html[data-input-active="true"] #checkout-scroll > div {
+    padding-bottom: max(32px, env(safe-area-inset-bottom, 0px)) !important;
   }
   #checkout-footer {
     padding-top: 10px !important;

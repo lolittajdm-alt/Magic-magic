@@ -1,5 +1,6 @@
 import { API_AVAILABLE } from "./api.js";
 import { useModalViewport } from "./useModalViewport.js";
+import { advanceCheckoutField } from "./checkoutFocus.js";
 import { assetUrl } from "./assetUrl.js";
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
@@ -850,7 +851,11 @@ function App() {
         onRequestClose={close}
         onShow={() => closeButton.current?.focus()}
       >
-        <View nativeID="site-overlay" style={s.overlay}>
+        <View
+          nativeID="site-overlay"
+          dataSet={{ checkout: contact ? "true" : "false" }}
+          style={s.overlay}
+        >
           <Pressable
             role="button"
             tabIndex={-1}
@@ -890,11 +895,13 @@ function App() {
                     <Text nativeID="checkout-toolbar-title">
                       Оформлення замовлення
                     </Text>
-                    <Pressable
-                      nativeID="keyboard-done"
-                      role="button"
-                      accessibilityLabel="Готово — закрити клавіатуру"
-                      onPress={() => document.activeElement?.blur?.()}
+                    <button
+                      id="keyboard-done"
+                      type="button"
+                      aria-label="Готово — наступне поле"
+                      onPointerDown={(event) => event.preventDefault()}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => advanceCheckoutField()}
                     >
                       <Text
                         style={{
@@ -906,7 +913,7 @@ function App() {
                       >
                         Готово
                       </Text>
-                    </Pressable>
+                    </button>
                   </>
                 )}
                 <Pressable
