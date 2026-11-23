@@ -71,6 +71,10 @@ test("server sets price, persists delivery, deduplicates concurrent/restarted re
       const b = JSON.parse(options.body);
       amount = b.amount;
       assert.equal(b.merchantPaymInfo.basketOrder[0].sum, 1000);
+      assert.equal(
+        b.merchantPaymInfo.basketOrder[0].icon,
+        "https://lolittajdm-alt.github.io/Magic-magic/assets/checkout-product.webp",
+      );
       assert.equal(b.ccy, 980);
       return Response.json({
         invoiceId: "test-invoice",

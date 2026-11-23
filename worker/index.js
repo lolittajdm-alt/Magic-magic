@@ -4,7 +4,7 @@ import {
   timingSafeEqual,
   randomBytes,
 } from "node:crypto";
-import { PRICE, validateOrder } from "../server/order.js";
+import { PRICE, PRODUCT_IMAGE_URL, validateOrder } from "../server/order.js";
 import { createNovaPoshtaApi } from "../server/nova-poshta.js";
 import { orderMessage, shouldNotify } from "./order-message.js";
 const hash = (x) => createHash("sha256").update(x).digest("hex");
@@ -320,6 +320,7 @@ export function createWorker({ request = fetch } = {}) {
           basketOrder: [
             {
               name: "Магнітні Шахи",
+              icon: PRODUCT_IMAGE_URL,
               qty: details.quantity,
               sum: PRICE,
               total: order.amount,

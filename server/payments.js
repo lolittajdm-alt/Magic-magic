@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { join } from "node:path";
 
-import { PRICE, validateOrder } from "./order.js";
+import { PRICE, PRODUCT_IMAGE_URL, validateOrder } from "./order.js";
 export { validateOrder } from "./order.js";
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const hash = (value) => createHash("sha256").update(value).digest("hex");
@@ -131,6 +131,7 @@ export function createPaymentApi({
           basketOrder: [
             {
               name: "Магнітні Шахи",
+              icon: PRODUCT_IMAGE_URL,
               qty: details.quantity,
               sum: PRICE,
               total: order.amount,

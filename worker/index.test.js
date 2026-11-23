@@ -275,6 +275,10 @@ test("mono invoice uses server price, correct return path and webhook, repeated 
   assert.equal(invoices.length, 1);
   const data = JSON.parse(invoices[0].init.body);
   assert.equal(data.amount, 2000);
+  assert.equal(
+    data.merchantPaymInfo.basketOrder[0].icon,
+    "https://lolittajdm-alt.github.io/Magic-magic/assets/checkout-product.webp",
+  );
   assert.ok(
     data.redirectUrl.startsWith("https://shop.example/Magic-magic/?payment="),
   );

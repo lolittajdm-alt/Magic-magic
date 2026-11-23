@@ -1,4 +1,6 @@
 export const PRICE = 1000;
+export const PRODUCT_IMAGE_URL =
+  "https://lolittajdm-alt.github.io/Magic-magic/assets/checkout-product.webp";
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const fail = (code, message) => Object.assign(new Error(message), { code });
 export function validateOrder(input) {

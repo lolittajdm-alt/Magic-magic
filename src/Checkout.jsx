@@ -439,11 +439,27 @@ export default function Checkout({ apiAvailable = true }) {
             resizeMode="cover"
             style={s.productImage}
           />
-          <View style={{ flex: 1, gap: 5, minWidth: 100 }}>
+          <View
+            style={{ flex: 1, gap: 5, minWidth: 100, justifyContent: "center" }}
+          >
             <Text style={s.productName}>Магнітні Шахи</Text>
             <Text style={s.hint}>Набір для гри · {quantity} шт.</Text>
-            <Text style={s.productPrice}>{formatPrice(UNIT_PRICE)} / шт.</Text>
+            {!confirmed && (
+              <Text style={s.productPrice}>
+                {formatPrice(UNIT_PRICE)} / шт.
+              </Text>
+            )}
           </View>
+          {confirmed && (
+            <Text
+              style={[
+                s.productPrice,
+                { marginLeft: "auto", textAlign: "right" },
+              ]}
+            >
+              {formatPrice(UNIT_PRICE)} / шт.
+            </Text>
+          )}
           {!confirmed && (
             <View style={[s.quantity, mobile && { marginLeft: "auto" }]}>
               <Pressable
