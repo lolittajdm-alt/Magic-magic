@@ -704,14 +704,6 @@ export default function Checkout({ apiAvailable = true }) {
                   hovered && { backgroundColor: "#f3f7ee" },
                 ]}
               >
-                <View
-                  style={[
-                    s.paymentRadio,
-                    paymentMethod === method && { borderColor: "#6b973c" },
-                  ]}
-                >
-                  {paymentMethod === method && <View style={s.radioDot} />}
-                </View>
                 <View style={{ flex: 1, minWidth: 0, gap: 10 }}>
                   <Text style={s.carrierTitle}>
                     {method === "online" ? "Онлайн-оплата" : "При отриманні"}
@@ -744,6 +736,14 @@ export default function Checkout({ apiAvailable = true }) {
                   ) : (
                     <Text style={s.hint}>Комісія за переказ коштів — 2%</Text>
                   )}
+                </View>
+                <View
+                  style={[
+                    s.paymentRadio,
+                    paymentMethod === method && { borderColor: "#6b973c" },
+                  ]}
+                >
+                  {paymentMethod === method && <View style={s.radioDot} />}
                 </View>
               </Pressable>
             ))}

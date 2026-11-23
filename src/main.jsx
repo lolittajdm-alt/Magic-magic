@@ -924,6 +924,11 @@ function App() {
                   style={[
                     s.close,
                     { width: target, height: target, borderRadius: target / 2 },
+                    contact && {
+                      borderRadius: 4,
+                      backgroundColor: "transparent",
+                      boxShadow: "none",
+                    },
                   ]}
                 >
                   <X size={size(22)} />
