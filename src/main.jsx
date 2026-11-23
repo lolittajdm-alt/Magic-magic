@@ -313,11 +313,10 @@ function App() {
               s.heroCopy,
               {
                 paddingHorizontal: mobile ? 25 : 64,
-                paddingTop: mobile ? 42 : 60,
+                paddingTop: mobile ? 28 : 24,
               },
             ]}
           >
-            <Text style={s.eyebrow}>ТВОРЧИЙ ПОРТФОЛІО</Text>
             <Text
               role="heading"
               aria-level={1}
@@ -327,16 +326,21 @@ function App() {
                   fontSize: mobile
                     ? Math.min(28, (width * 0.94 - 50) / 10.5)
                     : tablet
-                      ? Math.min(34, (width * 0.94 * 0.54 - 76) / 10)
+                      ? Math.min(34, (width * 0.94 * 0.54 - 88) / 11)
                       : 43,
-                  lineHeight: mobile ? 45 : tablet ? 55 : 65,
-                  marginTop: 27,
+                  lineHeight: mobile ? 40 : tablet ? 48 : 60,
+                  maxWidth: mobile
+                    ? "100%"
+                    : tablet
+                      ? width * 0.94 * 0.54 - 88
+                      : "52%",
+                  marginTop: 0,
                 },
               ]}
             >
               Грай.
-              <Text style={{ fontSize: "0.5em", letterSpacing: -0.7 }}>
-                {"\n"}Притримуйся стратегії.
+              <Text>
+                {"\n"}Притримуйся{"\n"}стратегії.
               </Text>
               <Text style={{ color: green }}>{"\n"}Перемагай.</Text>
             </Text>
